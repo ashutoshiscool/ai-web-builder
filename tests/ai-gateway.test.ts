@@ -22,5 +22,18 @@ describe("AI Gateway & Provider Adapter", () => {
     });
     expect(response).toBeTruthy();
     expect(typeof response).toBe("string");
-  });
+  }, 15000);
+
+  it("should stream chat completion from configured gateway", async () => {
+    let streamedText = "";
+    const res = await aiGateway.chatCompletionStream({
+      model: "gemini-2.5-flash",
+      messages: [{ role: "user", content: "Write a React component with <div>Hello</div>" }],
+      onChunk: (chunk) => {
+        streamedText += chunk;
+      },
+    });
+    expect(res.fullText).toBeTruthy();
+    expect(streamedText).toContain("Hello");
+  }, 20000);
 });

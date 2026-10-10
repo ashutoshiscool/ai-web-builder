@@ -2,19 +2,31 @@ import { NextResponse } from "next/server";
 import { getProject, saveProject, deleteProject, duplicateProject } from "@/lib/storage/project-store";
 import JSZip from "jszip";
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const project = getProject(id);
+export async function GET(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const params = await context.params;
+    const id = params?.id;
+    if (!id) {
+      return NextResponse.json({ error: "Missing project id" }, { status: 400 });
+    }
+    const project = getProject(id);
 
-  if (!project) {
-    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ project });
+  } catch (err: any) {
+    console.error("GET /api/projects/[id] error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
-
-  return NextResponse.json({ project });
 }
 
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   const project = getProject(id);
 
   if (!project) {
@@ -39,8 +51,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function DELETE(req: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   const success = deleteProject(id);
 
   if (!success) {
@@ -50,8 +62,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   return NextResponse.json({ success: true });
 }
 
-export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   const project = getProject(id);
 
   if (!project) {

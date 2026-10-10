@@ -33,12 +33,22 @@ export interface ChatMessage {
   tokens?: { prompt: number; completion: number; total: number };
 }
 
+export type AgentMode = "architect" | "code" | "ask" | "debug" | "orchestrator";
+
 export interface ProjectSettings {
   model: string;
   provider: string;
-  agentMode: "architect" | "fast" | "debugger" | "refactor";
+  agentMode: AgentMode;
   autoApply: boolean;
   theme: "dark" | "system";
+}
+
+export interface ProjectLog {
+  id: string;
+  level: "info" | "warn" | "error" | "log";
+  message: string;
+  source?: "browser" | "compiler" | "agent" | "playwright";
+  timestamp: string;
 }
 
 export interface Project {
@@ -55,6 +65,9 @@ export interface Project {
   dependencies: Record<string, string>;
   conversations: ChatMessage[];
   settings: ProjectSettings;
+  logs?: ProjectLog[];
+  sandboxStatus?: "running" | "stopped" | "paused";
+  lastSandboxRestart?: string;
   deployedUrl?: string;
   githubRepo?: string;
 }
@@ -78,11 +91,25 @@ function ensureStorageDirs() {
 // In-memory cache for ultra-fast access
 let projectsCache: Record<string, Project> | null = null;
 
+function sanitizeMode(mode?: string): AgentMode {
+  if (mode === "architect" || mode === "code" || mode === "ask" || mode === "debug" || mode === "orchestrator") {
+    return mode;
+  }
+  if (mode === "debugger") return "debug";
+  if (mode === "fast" || mode === "refactor") return "code";
+  return "architect";
+}
+
 function loadProjectsFromDisk(): Record<string, Project> {
   ensureStorageDirs();
   try {
     const raw = fs.readFileSync(PROJECTS_FILE, "utf8");
     const parsed = JSON.parse(raw);
+    for (const id in parsed) {
+      if (parsed[id]?.settings) {
+        parsed[id].settings.agentMode = sanitizeMode(parsed[id].settings.agentMode);
+      }
+    }
     return parsed;
   } catch (e) {
     console.error("Error reading projects.json, resetting:", e);
@@ -114,19 +141,42 @@ export function syncProjectFilesToDisk(projectId: string, files: Record<string, 
 }
 
 export function getAllProjects(): Project[] {
-  if (!projectsCache) {
-    projectsCache = loadProjectsFromDisk();
-  }
-  return Object.values(projectsCache).sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  );
+  projectsCache = loadProjectsFromDisk();
+  return Object.values(projectsCache || {})
+    .filter(Boolean)
+    .sort(
+      (a, b) => new Date(b?.updatedAt || 0).getTime() - new Date(a?.updatedAt || 0).getTime()
+    );
 }
 
 export function getProject(id: string): Project | null {
-  if (!projectsCache) {
-    projectsCache = loadProjectsFromDisk();
+  if (!id || typeof id !== "string") return null;
+  projectsCache = loadProjectsFromDisk();
+  const project = projectsCache[id] || null;
+  if (project) {
+    if (!project.files) project.files = {};
+    const projectDir = path.join(PROJECTS_DIR, id);
+    if (fs.existsSync(projectDir)) {
+      try {
+        const readFilesRecursively = (dir: string, base: string = "") => {
+          const entries = fs.readdirSync(dir, { withFileTypes: true });
+          for (const entry of entries) {
+            const relPath = base ? `${base}/${entry.name}` : entry.name;
+            const fullPath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+              readFilesRecursively(fullPath, relPath);
+            } else if (entry.isFile()) {
+              project.files[relPath] = fs.readFileSync(fullPath, "utf8");
+            }
+          }
+        };
+        readFilesRecursively(projectDir);
+      } catch (e) {
+        console.error("Error reading project files from disk:", e);
+      }
+    }
   }
-  return projectsCache[id] || null;
+  return project;
 }
 
 export function saveProject(project: Project): Project {
@@ -240,12 +290,12 @@ export default function App() {
           {
             id: uuidv4().slice(0, 8),
             role: "assistant",
-            content: `👋 Hello! I am your **NOVAFORGE Coding Agent**.\n\nI have initialized your project **${params.name}**. You can ask me to build components, write full applications, install packages, integrate APIs, or fix any bugs.\n\nWhat would you like to build first?`,
+            content: `👋 Hello! I am **veronica**, your AI technical lead and engineering copilot.\n\nI have initialized your project **${params.name}** and can assist you across 5 specialized modes:\n- **Architect**: Inquisitive technical leader creating plans for your approval\n- **Code**: Highly skilled engineer producing clean, modular code\n- **Ask**: Knowledgeable technical assistant answering questions\n- **Debug**: Expert debugger for systematic problem diagnosis & repair\n- **Orchestrator**: Strategic workflow coordinator delegating tasks to specialized modes\n\nWhat would you like to plan or build first?`,
             timestamp: now,
           },
         ],
     settings: {
-      model: "gemini-3.8-flash",
+      model: "gemini-2.5-flash",
       provider: "local-proxy",
       agentMode: "architect",
       autoApply: true,
@@ -290,3 +340,69 @@ export function duplicateProject(id: string): Project | null {
   });
   return copy;
 }
+
+export function addProjectLog(
+  projectId: string,
+  log: {
+    level: "info" | "warn" | "error" | "log";
+    message: string;
+    source?: "browser" | "compiler" | "agent" | "playwright";
+    timestamp?: string;
+  }
+): ProjectLog | null {
+  const project = getProject(projectId);
+  if (!project) return null;
+
+  if (!project.logs) {
+    project.logs = [];
+  }
+
+  const newLog: ProjectLog = {
+    id: uuidv4().slice(0, 8),
+    level: log.level,
+    message: log.message,
+    source: log.source || "browser",
+    timestamp: log.timestamp || new Date().toISOString(),
+  };
+
+  project.logs.push(newLog);
+
+  // Keep last 500 logs to prevent unbounded growth
+  if (project.logs.length > 500) {
+    project.logs = project.logs.slice(-500);
+  }
+
+  saveProject(project);
+  return newLog;
+}
+
+export function getProjectLogs(projectId: string, limit: number = 100): ProjectLog[] {
+  const project = getProject(projectId);
+  if (!project || !project.logs) return [];
+  return project.logs.slice(-limit);
+}
+
+export function clearProjectLogs(projectId: string): boolean {
+  const project = getProject(projectId);
+  if (!project) return false;
+  project.logs = [];
+  saveProject(project);
+  return true;
+}
+
+export function setSandboxStatus(projectId: string, status: "running" | "stopped" | "paused"): boolean {
+  const project = getProject(projectId);
+  if (!project) return false;
+  project.sandboxStatus = status;
+  if (status === "running") {
+    project.lastSandboxRestart = new Date().toISOString();
+  }
+  saveProject(project);
+  return true;
+}
+
+export function getSandboxStatus(projectId: string): "running" | "stopped" | "paused" {
+  const project = getProject(projectId);
+  return project?.sandboxStatus || "running";
+}
+

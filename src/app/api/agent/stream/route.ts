@@ -42,26 +42,30 @@ export async function POST(req: Request) {
           const toolCallsRecord: any[] = [];
           let executionPlan: string[] = [];
 
-          assistantText = await codingAgent.runAgentLoop(prompt, (event) => {
-            sendEvent(event);
+          assistantText = await codingAgent.runAgentLoop(
+            prompt,
+            (event) => {
+              sendEvent(event);
 
-            if (event.type === "plan") {
-              executionPlan = event.payload.steps;
-            } else if (event.type === "tool_call") {
-              toolCallsRecord.push({
-                id: event.payload.id,
-                name: event.payload.name,
-                args: event.payload.args,
-                status: "running",
-              });
-            } else if (event.type === "tool_result") {
-              const tc = toolCallsRecord.find((t) => t.id === event.payload.id);
-              if (tc) {
-                tc.status = "completed";
-                tc.result = typeof event.payload.result === "string" ? event.payload.result : JSON.stringify(event.payload.result);
+              if (event.type === "plan") {
+                executionPlan = event.payload.steps;
+              } else if (event.type === "tool_call") {
+                toolCallsRecord.push({
+                  id: event.payload.id,
+                  name: event.payload.name,
+                  args: event.payload.args,
+                  status: "running",
+                });
+              } else if (event.type === "tool_result") {
+                const tc = toolCallsRecord.find((t) => t.id === event.payload.id);
+                if (tc) {
+                  tc.status = "completed";
+                  tc.result = typeof event.payload.result === "string" ? event.payload.result : JSON.stringify(event.payload.result);
+                }
               }
-            }
-          });
+            },
+            agentMode
+          );
 
           // Record assistant message in conversation
           const assistantMsg: ChatMessage = {
@@ -75,6 +79,15 @@ export async function POST(req: Request) {
           };
           project.conversations.push(assistantMsg);
           saveProject(project);
+
+          sendEvent({
+            type: "complete",
+            payload: {
+              summary: assistantText.slice(0, 100),
+              finalMessage: assistantText,
+              project,
+            },
+          });
         } catch (err: any) {
           console.error("Agent execution error:", err);
           sendEvent({

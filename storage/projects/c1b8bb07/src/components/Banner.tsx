@@ -1,0 +1,1 @@
+export function Banner() { return <div>Hello NOVAFORGE</div>; }

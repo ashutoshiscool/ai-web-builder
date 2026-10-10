@@ -2,6 +2,7 @@ import { getAllProjects, createProject } from "@/lib/storage/project-store";
 import { TEMPLATES } from "@/lib/templates/template-registry";
 import { redirect } from "next/navigation";
 
+
 export default async function WorkspaceRedirectPage() {
   const projects = getAllProjects();
 

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Monitor, Tablet, Smartphone, RefreshCw, ExternalLink, 
   Terminal, AlertTriangle, CheckCircle, Bug, ChevronUp, ChevronDown,
-  Trash2, ShieldCheck, Play
+  Trash2, ShieldCheck, Play, Pause, RotateCcw
 } from "lucide-react";
 import { Project } from "@/lib/storage/project-store";
 
@@ -30,8 +30,53 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
     { id: "1", level: "info", message: "Vite HMR runtime connected.", timestamp: new Date().toLocaleTimeString() },
     { id: "2", level: "info", message: "Preview application initialized (Zero-Port Sandboxed).", timestamp: new Date().toLocaleTimeString() },
   ]);
+  const [sandboxStatus, setSandboxStatus] = useState<"running" | "stopped" | "paused">(
+    project.sandboxStatus || "running"
+  );
+  const [isSandboxToggling, setIsSandboxToggling] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const handleToggleSandbox = async () => {
+    setIsSandboxToggling(true);
+    const newAction = sandboxStatus === "running" ? "stop" : "start";
+    try {
+      const res = await fetch(`/api/projects/${project.id}/sandbox`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: newAction }),
+      });
+      const data = await res.json();
+      if (data.status) {
+        setSandboxStatus(data.status);
+        setPreviewKey((k) => k + 1);
+      }
+    } catch (e) {
+      console.error("Failed to toggle sandbox:", e);
+    } finally {
+      setIsSandboxToggling(false);
+    }
+  };
+
+  const handleRestartSandbox = async () => {
+    setIsSandboxToggling(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/sandbox`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "restart" }),
+      });
+      const data = await res.json();
+      if (data.status) {
+        setSandboxStatus("running");
+        setPreviewKey((k) => k + 1);
+      }
+    } catch (e) {
+      console.error("Failed to restart sandbox:", e);
+    } finally {
+      setIsSandboxToggling(false);
+    }
+  };
 
   // Trigger preview reload when code changes
   useEffect(() => {
@@ -119,8 +164,50 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-1" title="Live Hot Reload Active (Zero-Port)" />
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-1">
+        {/* Action Controls & Sandbox State */}
+        <div className="flex items-center gap-1.5">
+          <div
+            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider border ${
+              sandboxStatus === "running"
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                sandboxStatus === "running" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+              }`}
+            />
+            <span>{sandboxStatus === "running" ? "Sandbox Live" : "Sandbox Paused"}</span>
+          </div>
+
+          <button
+            onClick={handleToggleSandbox}
+            disabled={isSandboxToggling}
+            className={`p-1 rounded text-xs transition-colors flex items-center gap-1 px-1.5 py-0.5 border border-[#333333] ${
+              sandboxStatus === "running"
+                ? "hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 bg-[#252526]"
+                : "hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 bg-[#252526]"
+            }`}
+            title={sandboxStatus === "running" ? "Pause Sandbox Execution" : "Start / Resume Sandbox"}
+          >
+            {sandboxStatus === "running" ? (
+              <Pause className="w-3.5 h-3.5 text-amber-400" />
+            ) : (
+              <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" />
+            )}
+            <span className="text-[10px] font-sans">{sandboxStatus === "running" ? "Pause" : "Resume"}</span>
+          </button>
+
+          <button
+            onClick={handleRestartSandbox}
+            disabled={isSandboxToggling}
+            className="p-1 rounded hover:bg-[#252526] text-slate-400 hover:text-white transition-colors border border-[#333333]"
+            title="Restart Sandbox & Clear State"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+
           <button
             onClick={handleRefresh}
             className="p-1 rounded hover:bg-[#252526] text-slate-400 hover:text-white transition-colors"
@@ -139,9 +226,9 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
       </div>
 
       {/* Main Preview Container */}
-      <div className="flex-1 bg-[#181818] flex items-center justify-center p-2 overflow-auto relative">
+      <div className="flex-1 bg-[#181818] flex items-center justify-center p-2 overflow-hidden relative min-h-0">
         <div
-          className={`h-full transition-all duration-300 rounded overflow-hidden shadow-xl border border-[#2b2b2b] bg-[#1e1e1e] flex flex-col ${
+          className={`h-full transition-all duration-300 rounded overflow-hidden shadow-xl border border-[#2b2b2b] bg-[#08090d] flex flex-col min-h-0 ${
             viewport === "desktop"
               ? "w-full"
               : viewport === "tablet"
@@ -152,9 +239,9 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
           <iframe
             key={previewKey}
             ref={iframeRef}
-            src={`/preview/${project.id}?route=${encodeURIComponent(currentRoute)}`}
+            src={`/preview/${project.id}?route=${encodeURIComponent(currentRoute)}&t=${previewKey}`}
             title="Application Preview"
-            className="w-full h-full border-0 bg-transparent flex-1"
+            className="w-full h-full border-0 bg-[#08090d] flex-1 block"
             sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
           />
         </div>

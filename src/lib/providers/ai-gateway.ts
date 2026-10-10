@@ -11,8 +11,10 @@ export interface ModelDefinition {
 
 export const ALL_MODELS: ModelDefinition[] = [
   // --- Google Gemini (Complete Fleet from endpoint) ---
-  { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash (Flagship Speed)", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Ultra-fast low-latency code generation with 1M context.", supportsTools: true },
-  { id: "gemini-3.8-flash-high", name: "Gemini 3.8 Flash High Throughput", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Maximum QPS tier for instant streaming.", supportsTools: true },
+  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash (Flagship Fast & Live)", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Instant sub-second streaming code generation with verified 1M context.", supportsTools: true },
+  { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash (High Throughput)", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Ultra-fast verified Gemini 2.0 streaming engine.", supportsTools: true },
+  { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash (Stable)", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Classic reliable 1.5 Flash generation engine.", supportsTools: true },
+  { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash Preview", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Experimental 3.8 flash architecture.", supportsTools: true },
   { id: "gemini-3.8-high", name: "Gemini 3.8 High Reasoning", provider: "local-proxy", tier: "reasoning", category: "Google Gemini", contextWindow: 1048576, description: "Deep reasoning engine for complex architectures.", supportsTools: true },
   { id: "gemini-3.7-flash", name: "Gemini 3.7 Flash", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Balanced fast development tier.", supportsTools: true },
   { id: "gemini-3.7-flash-high", name: "Gemini 3.7 Flash High", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "High-throughput 3.7 flash engine.", supportsTools: true },
@@ -32,16 +34,12 @@ export const ALL_MODELS: ModelDefinition[] = [
   { id: "gemini-3.1-flash-lite-high", name: "Gemini 3.1 Flash Lite High", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 524288, description: "High-throughput 3.1 flash lite.", supportsTools: true },
   { id: "gemini-3.1-flash-lite-preview", name: "Gemini 3.1 Flash Lite Preview", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 524288, description: "Experimental 3.1 flash lite preview.", supportsTools: true },
   { id: "gemini-3-flash-preview", name: "Gemini 3 Flash Preview", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Gemini 3.0 preview architecture.", supportsTools: true },
-  { id: "gemini-3-flash-preview-high", name: "Gemini 3 Flash Preview High", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "High throughput preview variant.", supportsTools: true },
-  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash Production", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Stable 2.5 flash generation engine.", supportsTools: true },
   { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 524288, description: "Lightweight 2.5 flash tier.", supportsTools: true },
   { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro Multimodal", provider: "local-proxy", tier: "reasoning", category: "Google Gemini", contextWindow: 2097152, description: "2 Million token context reasoning powerhouse.", supportsTools: true },
   { id: "gemini-pro-latest", name: "Gemini Pro Latest", provider: "local-proxy", tier: "reasoning", category: "Google Gemini", contextWindow: 2097152, description: "Auto-updating latest Gemini Pro release.", supportsTools: true },
   { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview", provider: "local-proxy", tier: "reasoning", category: "Google Gemini", contextWindow: 2097152, description: "Next-generation 3.1 Pro architecture preview.", supportsTools: true },
-  { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Ultra-fast generation engine.", supportsTools: true },
   { id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash Lite", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 524288, description: "Lightweight Gemini 2.0 engine.", supportsTools: true },
   { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", provider: "local-proxy", tier: "reasoning", category: "Google Gemini", contextWindow: 2097152, description: "Classic 2M context flagship.", supportsTools: true },
-  { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash", provider: "local-proxy", tier: "fast", category: "Google Gemini", contextWindow: 1048576, description: "Classic 1.5 flash model.", supportsTools: true },
   { id: "gemini-robotics-er-2-preview", name: "Gemini Robotics ER-2 Preview", provider: "local-proxy", tier: "specialist", category: "Google Gemini", contextWindow: 1048576, description: "Spatial & layout reasoning specialist.", supportsTools: true },
   { id: "gemma-4-31b-it", name: "Gemma 4 31B Instruct", provider: "local-proxy", tier: "balanced", category: "Google Gemini", contextWindow: 65536, description: "Google open-weights 31B instruction-tuned model.", supportsTools: true },
   { id: "gemma-4-31b-it-high", name: "Gemma 4 31B Instruct High", provider: "local-proxy", tier: "balanced", category: "Google Gemini", contextWindow: 65536, description: "High-priority Gemma 4 31B queue.", supportsTools: true },
@@ -101,7 +99,9 @@ export const ALL_MODELS: ModelDefinition[] = [
   { id: "ollama-qwen", name: "Ollama / Qwen Local (Offline)", provider: "ollama", tier: "fast", category: "Qwen & Open Weights", contextWindow: 32768, description: "Offline local model on workstation.", supportsTools: true },
 ];
 
-export const AVAILABLE_MODELS = ALL_MODELS;
+export const AVAILABLE_MODELS = ALL_MODELS.filter(
+  (model, index, self) => index === self.findIndex((m) => m.id === model.id)
+);
 
 export interface ChatCompletionMessage {
   role: "system" | "user" | "assistant" | "tool";
@@ -173,82 +173,86 @@ export class AIGateway {
     const url = providerConfig?.baseUrl || this.defaultBaseUrl;
     const apiKey = providerConfig?.apiKey || this.defaultApiKey;
 
-    const payload: any = {
+    const candidateModels = [
       model,
-      messages,
-      stream: true,
-    };
+      model !== "gemini-2.5-flash" ? "gemini-2.5-flash" : "gemini-2.0-flash",
+      "gemini-1.5-flash",
+      "gemini-3.8-flash",
+    ].filter((m, i, arr) => m && arr.indexOf(m) === i);
 
-    if (tools && tools.length > 0) {
-      payload.tools = tools.map((t) => ({
-        type: "function",
-        function: {
-          name: t.name,
-          description: t.description,
-          parameters: t.parameters,
-        },
-      }));
-    }
+    let lastError: any = null;
 
-    try {
-      const response = await fetch(`${url}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(60000),
-      });
+    for (const currentModel of candidateModels) {
+      try {
+        const payload: any = {
+          model: currentModel,
+          messages,
+          stream: true,
+          max_tokens: 16384,
+        };
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`AI Gateway error [${response.status}]: ${errorText}`);
-      }
+        const response = await fetch(`${url}/chat/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(90000),
+        });
 
-      if (!response.body) {
-        throw new Error("Response body is null from AI provider");
-      }
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`AI Gateway [${currentModel}] error [${response.status}]: ${errorText}`);
+        }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let fullText = "";
-      let buffer = "";
+        if (!response.body) {
+          throw new Error(`Response body is null from AI provider for ${currentModel}`);
+        }
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let fullText = "";
+        let buffer = "";
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed || !trimmed.startsWith("data:")) continue;
-          if (trimmed === "data: [DONE]") continue;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
 
-          try {
-            const json = JSON.parse(trimmed.replace(/^data:\s*/, ""));
-            const content = json.choices?.[0]?.delta?.content;
-            if (content) {
-              fullText += content;
-              onChunk(content);
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data:")) continue;
+            if (trimmed === "data: [DONE]") continue;
+
+            try {
+              const json = JSON.parse(trimmed.replace(/^data:\s*/, ""));
+              const content = json.choices?.[0]?.delta?.content;
+              if (content) {
+                fullText += content;
+                onChunk(content);
+              }
+            } catch {
+              // Ignore partial SSE parsing errors
             }
-          } catch {
-            // Ignore partial SSE parsing errors
           }
         }
+
+        if (fullText.trim().length > 0) {
+          const words = fullText.split(/\s+/).length;
+          const tokensEstimated = Math.round(words * 1.3);
+          return { fullText, tokensEstimated };
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`Model ${currentModel} stream failed (${err.message}), trying next fallback model...`);
       }
-
-      const words = fullText.split(/\s+/).length;
-      const tokensEstimated = Math.round(words * 1.3);
-
-      return { fullText, tokensEstimated };
-    } catch (err: any) {
-      console.warn("AI Gateway streaming failed or timed out:", err.message);
-      throw err;
     }
+
+    throw lastError || new Error("All AI models in gateway failed to stream.");
   }
 
   async chatCompletionSync({
@@ -273,8 +277,9 @@ export class AIGateway {
         model,
         messages,
         stream: false,
+        max_tokens: 16384,
       }),
-      signal: AbortSignal.timeout(45000),
+      signal: AbortSignal.timeout(90000),
     });
 
     if (!response.ok) {

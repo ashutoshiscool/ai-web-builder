@@ -7,7 +7,7 @@ import {
   Sliders, Layers, Zap, AlertCircle, Wrench, FileCode, Check,
   Cpu, ArrowRight, Copy, CheckCheck, Code2, ArrowUpRight
 } from "lucide-react";
-import { Project, ChatMessage } from "@/lib/storage/project-store";
+import { Project, ChatMessage, AgentMode } from "@/lib/storage/project-store";
 import { AVAILABLE_MODELS } from "@/lib/providers/ai-gateway";
 
 interface LeftPanelProps {
@@ -39,6 +39,18 @@ function CodeBlockViewer({
   const [copied, setCopied] = useState(false);
   const [applied, setApplied] = useState(false);
 
+  const targetFile = filename || (
+    language.includes("tsx") || language.includes("jsx") || language.includes("react")
+      ? "src/App.tsx"
+      : language.includes("css")
+      ? "src/app/globals.css"
+      : language.includes("json")
+      ? "package.json"
+      : language.includes("html")
+      ? "index.html"
+      : "src/App.tsx"
+  );
+
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
     setCopied(true);
@@ -46,15 +58,15 @@ function CodeBlockViewer({
   };
 
   const handleApply = () => {
-    if (onApply && filename) {
-      onApply(filename, code);
+    if (onApply) {
+      onApply(targetFile, code);
       setApplied(true);
-      setTimeout(() => setApplied(false), 2000);
+      setTimeout(() => setApplied(false), 2500);
     }
   };
 
   const lines = useMemo(() => code.split("\n"), [code]);
-  const displayFilename = filename || (language.includes("tsx") || language.includes("jsx") ? "src/App.tsx" : language ? `script.${language}` : "code");
+  const displayFilename = filename || targetFile;
 
   return (
     <div className="my-2.5 rounded border border-[#2b2b2b] bg-[#141414] overflow-hidden text-xs font-mono shadow-md">
@@ -73,17 +85,8 @@ function CodeBlockViewer({
           )}
         </div>
 
-        <div className="flex items-center gap-1">
-          {onApply && filename && !isStreaming && (
-            <button
-              onClick={handleApply}
-              className="flex items-center gap-1 text-[10px] text-emerald-400 hover:text-white px-2 py-0.5 rounded hover:bg-emerald-950/40 border border-emerald-500/30 transition-colors"
-              title="Apply directly to project file"
-            >
-              {applied ? <Check className="w-3 h-3 text-emerald-300" /> : <ArrowUpRight className="w-3 h-3" />}
-              <span>{applied ? "Applied" : "Apply"}</span>
-            </button>
-          )}
+        <div className="flex items-center gap-1.5">
+
 
           <button
             onClick={handleCopy}
@@ -125,7 +128,7 @@ function MessageContent({
   onApply?: (filename: string, code: string) => void;
 }) {
   const parts: React.ReactNode[] = [];
-  const codeBlockStartRegex = /```([a-zA-Z0-9_\-+]*)(?::([a-zA-Z0-9_.\-\/]+))?\n/g;
+  const codeBlockStartRegex = /```([a-zA-Z0-9_\-+]*)(?:[:\s]+(?:filename=|file=)?["'\(]?([a-zA-Z0-9_.\-\/]+\.[a-zA-Z0-9]+)["'\)]?)?\r?\n/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let blockIndex = 0;
@@ -133,7 +136,7 @@ function MessageContent({
   while ((match = codeBlockStartRegex.exec(text)) !== null) {
     const startIndex = match.index;
     const lang = match[1] || "";
-    const filename = match[2] || "";
+    let filename = match[2] || "";
     const codeStartIndex = startIndex + match[0].length;
 
     // Preceding text before code block
@@ -152,6 +155,14 @@ function MessageContent({
     if (closingIndex !== -1) {
       // Completed closed code block
       const code = text.substring(codeStartIndex, closingIndex);
+
+      if (!filename) {
+        const firstLineMatch = /^(?:\/\/\s*(?:file(?:path)?:?|\b)\s*|\/\*\s*(?:file(?:path)?:?|\b)\s*)([a-zA-Z0-9_.\-\/]+\.[a-zA-Z0-9]+)/i.exec(code.trimStart());
+        if (firstLineMatch) {
+          filename = firstLineMatch[1];
+        }
+      }
+
       parts.push(
         <CodeBlockViewer
           key={`code-${blockIndex++}`}
@@ -207,10 +218,10 @@ export function LeftPanel({
   onApplyCode,
 }: LeftPanelProps) {
   const [prompt, setPrompt] = useState("");
-  const [agentMode, setAgentMode] = useState<"architect" | "fast" | "debugger" | "refactor">(
+  const [agentMode, setAgentMode] = useState<AgentMode>(
     project.settings.agentMode || "architect"
   );
-  const [model, setModel] = useState(project.settings.model || "gemini-3.8-flash");
+  const [model, setModel] = useState(project.settings.model || "gemini-2.5-flash");
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -221,6 +232,13 @@ export function LeftPanel({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [project.conversations, streamingText, currentStatus, activeToolCalls]);
+
+  // Sync mode if changed externally (e.g. Ask Agent to Fix button in preview)
+  useEffect(() => {
+    if (project.settings.agentMode && project.settings.agentMode !== agentMode) {
+      setAgentMode(project.settings.agentMode);
+    }
+  }, [project.settings.agentMode]);
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -257,12 +275,12 @@ export function LeftPanel({
 
   return (
     <div className="h-full flex flex-col bg-[#1e1e1e] border-r border-[#2b2b2b] overflow-hidden select-text font-sans">
-      {/* Top Controls: VS Code Title Header & Model Selector */}
+      {/* Top Controls: Veronica Header & Model Selector */}
       <div className="p-2.5 border-b border-[#2b2b2b] bg-[#181818] space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
             <Sparkles className="w-3.5 h-3.5 text-[#007acc]" />
-            <span className="font-mono text-[11px] tracking-wide text-slate-300">COPILOT CHAT</span>
+            <span className="font-mono text-[11px] tracking-wide text-slate-300">VERONICA COPILOT</span>
           </div>
 
           {/* Model Selector with All Flagship Models */}
@@ -284,27 +302,50 @@ export function LeftPanel({
           </select>
         </div>
 
-        {/* Mode Selector Tabs (VS Code Segment Control) */}
-        <div className="grid grid-cols-4 gap-1 bg-[#141414] p-0.5 rounded border border-[#2b2b2b] text-[11px] font-mono">
+        {/* 5 Modes Selector Tabs */}
+        <div className="grid grid-cols-5 gap-1 bg-[#141414] p-0.5 rounded border border-[#2b2b2b] text-[10px] font-mono">
           {[
-            { id: "architect", label: "Architect" },
-            { id: "fast", label: "Fast Edit" },
-            { id: "debugger", label: "Debug" },
-            { id: "refactor", label: "Refactor" },
+            { id: "architect", label: "Architect", title: "Technical Leader: Gather context & create detailed plans" },
+            { id: "code", label: "Code", title: "Software Engineer: Implement production code & components" },
+            { id: "ask", label: "Ask", title: "Technical Assistant: Q&A & conceptual guidance" },
+            { id: "debug", label: "Debug", title: "Expert Debugger: Systematic problem diagnosis & repair" },
+            { id: "orchestrator", label: "Orchestrator", title: "Workflow Orchestrator: Multi-mode task delegation" },
           ].map((mode) => (
             <button
               key={mode.id}
               onClick={() => setAgentMode(mode.id as any)}
               disabled={isGenerating}
-              className={`py-1 rounded text-center transition-all ${
+              title={mode.title}
+              className={`py-1 px-0.5 rounded text-center transition-all truncate ${
                 agentMode === mode.id
-                  ? "bg-[#007acc] text-white font-semibold shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-[#007acc] text-white font-bold shadow-sm"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-[#252526]"
               }`}
             >
               {mode.label}
             </button>
           ))}
+        </div>
+
+        {/* Active Mode Role Description */}
+        <div className="flex items-center justify-between text-[10px] font-mono px-0.5">
+          <span className="text-slate-400 truncate">
+            {agentMode === "architect" && "Planning mode: Inquires & creates plans (Switch to Code to auto-apply)"}
+            {agentMode === "code" && "Coding mode: Directly modifies & hot-reloads project files live in preview"}
+            {agentMode === "ask" && "Ask mode: Technical Q&A & conceptual guidance"}
+            {agentMode === "debug" && "Debug mode: Systematic diagnosis & direct surgical fixes"}
+            {agentMode === "orchestrator" && "Orchestrator: Multi-mode task coordination"}
+          </span>
+          {agentMode === "architect" && (
+            <button
+              type="button"
+              onClick={() => setAgentMode("code")}
+              className="text-[#007acc] hover:text-white underline ml-1 shrink-0 font-bold"
+              title="Switch to Code mode to apply code directly to project"
+            >
+              Switch to Code
+            </button>
+          )}
         </div>
       </div>
 
@@ -362,7 +403,7 @@ export function LeftPanel({
               ) : (
                 <>
                   <Bot className="w-3 h-3 text-[#007acc]" />
-                  <span className="font-semibold text-slate-300">NOVAFORGE Copilot</span>
+                  <span className="font-semibold text-slate-300">veronica</span>
                 </>
               )}
             </div>
@@ -402,7 +443,7 @@ export function LeftPanel({
           <div className="flex flex-col gap-1.5 items-start animate-fade-in">
             <div className="flex items-center gap-1.5 text-[10px] text-[#007acc] font-mono">
               <Bot className="w-3 h-3 text-[#007acc]" />
-              <span className="font-semibold">NOVAFORGE Copilot (Generating)</span>
+              <span className="font-semibold">veronica ({agentMode})</span>
             </div>
             <div className="rounded-lg rounded-tl-none px-3.5 py-2.5 leading-relaxed max-w-[95%] bg-[#252526] border border-[#007acc]/40 text-slate-200 text-xs shadow-md">
               <MessageContent text={streamingText} isStreaming={true} onApply={onApplyCode} />
@@ -421,11 +462,11 @@ export function LeftPanel({
               </div>
               <span className="text-blue-400 animate-pulse">Running</span>
             </div>
-            {activeToolCalls.map((tc) => (
-              <div key={tc.id} className="bg-[#1f1f1f] p-1.5 rounded flex items-center justify-between text-slate-300 border border-[#2b2b2b]">
-                <span className="text-blue-300">{tc.name}</span>
-                <span className={tc.status === "completed" ? "text-emerald-400" : "text-amber-400"}>
-                  {tc.status}
+            {activeToolCalls.filter(Boolean).map((tc, idx) => (
+              <div key={tc?.id || idx} className="bg-[#1f1f1f] p-1.5 rounded flex items-center justify-between text-slate-300 border border-[#2b2b2b]">
+                <span className="text-blue-300">{tc?.name || "tool"}</span>
+                <span className={tc?.status === "completed" ? "text-emerald-400" : "text-amber-400"}>
+                  {tc?.status || "running"}
                 </span>
               </div>
             ))}
@@ -466,8 +507,16 @@ export function LeftPanel({
             disabled={isGenerating}
             placeholder={
               isGenerating
-                ? "Agent is compiling and streaming code..."
-                : "Ask AI Copilot to build, edit, or refactor components... (Enter to send)"
+                ? "veronica is generating..."
+                : agentMode === "architect"
+                ? "Ask Veronica to plan architecture, gather context & specifications..."
+                : agentMode === "code"
+                ? "Ask Veronica to engineer components, build features & write code..."
+                : agentMode === "ask"
+                ? "Ask Veronica any technical question or request an explanation..."
+                : agentMode === "debug"
+                ? "Describe the issue or paste runtime error logs for Veronica to repair..."
+                : "Ask Veronica to orchestrate and delegate complex tasks across modes..."
             }
             rows={3}
             className="w-full bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none resize-none leading-relaxed font-sans"
