@@ -4787,5 +4787,72 @@
         "timestamp": "2026-10-10T21:40:50.971Z"
       }
     ]
+  },
+  "cd3da60d": {
+    "id": "cd3da60d",
+    "name": "taxi app web ",
+    "description": "Built with NOVAFORGE",
+    "framework": "react-vite",
+    "createdAt": "2026-10-10T21:59:55.095Z",
+    "updatedAt": "2026-10-10T21:59:58.358Z",
+    "files": {
+      "src/App.tsx": "import React, { useState } from 'react';\nimport { Sparkles, ArrowRight, Code2 } from 'lucide-react';\n\nexport default function App() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div className=\"min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6\">\n      <div className=\"max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl text-center\">\n        <div className=\"w-12 h-12 bg-indigo-500/10 border border-indigo-500/30 rounded-xl flex items-center justify-center mx-auto mb-4 text-indigo-400\">\n          <Sparkles className=\"w-6 h-6 animate-pulse\" />\n        </div>\n        <h1 className=\"text-2xl font-bold tracking-tight mb-2\">Welcome to taxi app web </h1>\n        <p className=\"text-slate-400 text-sm mb-6\">\n          Built with NOVAFORGE\n        </p>\n        <button\n          onClick={() => setCount((c) => c + 1)}\n          className=\"inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-500/20\"\n        >\n          <span>Interactions: {count}</span>\n          <ArrowRight className=\"w-4 h-4\" />\n        </button>\n      </div>\n    </div>\n  );\n}",
+      "src/index.css": "@tailwind base;\n@tailwind components;\n@tailwind utilities;",
+      "package.json": "{\n  \"name\": \"taxi-app-web-\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"dependencies\": {\n    \"react\": \"^19.0.0\",\n    \"react-dom\": \"^19.0.0\",\n    \"lucide-react\": \"^0.470.0\"\n  }\n}"
+    },
+    "activeFile": "src/App.tsx",
+    "checkpoints": [
+      {
+        "id": "63403cac",
+        "name": "Initial scaffold",
+        "timestamp": "2026-10-10T21:59:55.095Z",
+        "description": "Project initialized",
+        "files": {
+          "src/App.tsx": "import React, { useState } from 'react';\nimport { Sparkles, ArrowRight, Code2 } from 'lucide-react';\n\nexport default function App() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div className=\"min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6\">\n      <div className=\"max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl text-center\">\n        <div className=\"w-12 h-12 bg-indigo-500/10 border border-indigo-500/30 rounded-xl flex items-center justify-center mx-auto mb-4 text-indigo-400\">\n          <Sparkles className=\"w-6 h-6 animate-pulse\" />\n        </div>\n        <h1 className=\"text-2xl font-bold tracking-tight mb-2\">Welcome to taxi app web </h1>\n        <p className=\"text-slate-400 text-sm mb-6\">\n          Built with NOVAFORGE\n        </p>\n        <button\n          onClick={() => setCount((c) => c + 1)}\n          className=\"inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-500/20\"\n        >\n          <span>Interactions: {count}</span>\n          <ArrowRight className=\"w-4 h-4\" />\n        </button>\n      </div>\n    </div>\n  );\n}",
+          "src/index.css": "@tailwind base;\n@tailwind components;\n@tailwind utilities;",
+          "package.json": "{\n  \"name\": \"taxi-app-web-\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"dependencies\": {\n    \"react\": \"^19.0.0\",\n    \"react-dom\": \"^19.0.0\",\n    \"lucide-react\": \"^0.470.0\"\n  }\n}"
+        }
+      }
+    ],
+    "envVars": {
+      "VITE_API_URL": "https://api.novaforge.dev",
+      "VITE_APP_ENV": "development"
+    },
+    "dependencies": {
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0",
+      "lucide-react": "^0.470.0"
+    },
+    "conversations": [
+      {
+        "id": "ffbaa49a",
+        "role": "user",
+        "content": "build taxi company website , clean design  navy blue as a primary color , secondly sky blue and white + use Liquid Glass effects  in buttons / navbar",
+        "timestamp": "2026-10-10T21:59:55.095Z"
+      }
+    ],
+    "settings": {
+      "model": "gemini-2.5-flash",
+      "provider": "local-proxy",
+      "agentMode": "architect",
+      "autoApply": true,
+      "theme": "dark"
+    },
+    "logs": [
+      {
+        "id": "eb2e995a",
+        "level": "info",
+        "message": "NOVAFORGE Sandbox: Application compiled & mounted successfully.",
+        "source": "browser",
+        "timestamp": "2026-10-10T21:59:58.234Z"
+      },
+      {
+        "id": "06d757f0",
+        "level": "info",
+        "message": "NOVAFORGE Sandbox: Application compiled & mounted successfully.",
+        "source": "browser",
+        "timestamp": "2026-10-10T21:59:58.330Z"
+      }
+    ]
   }
 }
