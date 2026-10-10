@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Zap, Plus, Download, Rocket, Settings, 
   Columns, LayoutTemplate, Eye, Code2, ChevronDown, Check,
-  FolderOpen, Sparkles, RefreshCw
+  FolderOpen, Sparkles, RefreshCw, Share2, Users, FolderKanban
 } from "lucide-react";
 import { Project } from "@/lib/storage/project-store";
+import { useRouter } from "next/navigation";
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -24,6 +25,7 @@ interface WorkspaceHeaderProps {
   onOpenSettings: () => void;
   onOpenDeploy: () => void;
   onOpenGithub: () => void;
+  onOpenShare: () => void;
   onExportZip: () => void;
   isSaving?: boolean;
 }
@@ -36,15 +38,38 @@ export function WorkspaceHeader({
   onOpenSettings,
   onOpenDeploy,
   onOpenGithub,
+  onOpenShare,
   onExportZip,
   isSaving,
 }: WorkspaceHeaderProps) {
+  const router = useRouter();
   const [isRenaming, setIsRenaming] = useState(false);
   const [projectName, setProjectName] = useState(project.name);
 
+  // Dropdown states
+  const [activeWorkspace, setActiveWorkspace] = useState("Personal Workspace");
+  const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.projects) setAllProjects(data.projects);
+      })
+      .catch(() => {});
+  }, [project.id]);
+
+  const workspaces = [
+    { id: "personal", name: "Personal Workspace", badge: "Free" },
+    { id: "team", name: "Team Alpha (Collaboration)", badge: "Pro" },
+    { id: "enterprise", name: "Production Cloud VPC", badge: "Enterprise" },
+  ];
+
   return (
     <header className="h-13 bg-[#0d0f17] border-b border-[#1e2436] px-4 flex items-center justify-between z-30 select-none">
-      {/* Left: Brand & Project Name */}
+      {/* Left: Brand, Workspace Switcher & Project Switcher */}
       <div className="flex items-center gap-3">
         <a href="/" className="flex items-center gap-2 group">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 group-hover:scale-105 transition-transform">
@@ -57,8 +82,46 @@ export function WorkspaceHeader({
 
         <div className="h-4 w-[1px] bg-slate-800 hidden sm:block" />
 
-        {/* Project Selector / Rename */}
-        <div className="flex items-center gap-2">
+        {/* Workspace Switcher Dropdown */}
+        <div className="relative hidden md:block">
+          <button
+            onClick={() => {
+              setShowWorkspaceDropdown(!showWorkspaceDropdown);
+              setShowProjectDropdown(false);
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition-all"
+          >
+            <Users className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="font-medium truncate max-w-[130px]">{activeWorkspace}</span>
+            <ChevronDown className="w-3 h-3 text-slate-500" />
+          </button>
+
+          {showWorkspaceDropdown && (
+            <div className="absolute left-0 top-9 w-56 bg-[#0e111a] border border-[#1e2436] rounded-xl p-1.5 shadow-2xl z-50 text-xs space-y-1">
+              <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                Switch Workspace
+              </div>
+              {workspaces.map((ws) => (
+                <button
+                  key={ws.id}
+                  onClick={() => {
+                    setActiveWorkspace(ws.name);
+                    setShowWorkspaceDropdown(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors ${
+                    activeWorkspace === ws.name ? "bg-indigo-600 text-white font-bold" : "text-slate-300 hover:bg-slate-800"
+                  }`}
+                >
+                  <span>{ws.name}</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-black/30 opacity-80">{ws.badge}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Project Selector Dropdown / Rename */}
+        <div className="relative flex items-center gap-1.5">
           {isRenaming ? (
             <input
               type="text"
@@ -70,16 +133,57 @@ export function WorkspaceHeader({
               className="bg-slate-900 border border-indigo-500/50 rounded px-2 py-0.5 text-xs text-white focus:outline-none"
             />
           ) : (
-            <button
-              onClick={() => setIsRenaming(true)}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-slate-800/60 text-xs font-semibold text-slate-200 transition-colors"
-              title="Click to rename project"
-            >
-              <span>{projectName}</span>
-              <span className="px-1.5 py-0.2 rounded text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase font-mono">
-                {project.framework === "react-vite" ? "React 19" : project.framework}
-              </span>
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => {
+                  setShowProjectDropdown(!showProjectDropdown);
+                  setShowWorkspaceDropdown(false);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-slate-800/60 text-xs font-semibold text-slate-200 transition-colors"
+                title="Switch project"
+              >
+                <FolderKanban className="w-3.5 h-3.5 text-indigo-400" />
+                <span className="truncate max-w-[140px]">{projectName}</span>
+                <ChevronDown className="w-3 h-3 text-slate-500" />
+              </button>
+            </div>
+          )}
+
+          {showProjectDropdown && (
+            <div className="absolute left-0 top-9 w-64 bg-[#0e111a] border border-[#1e2436] rounded-xl p-1.5 shadow-2xl z-50 text-xs space-y-1">
+              <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                <span>Recent Projects</span>
+                <span className="text-indigo-400">{allProjects.length}</span>
+              </div>
+              <div className="max-h-56 overflow-y-auto space-y-0.5">
+                {allProjects.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      setShowProjectDropdown(false);
+                      router.push(`/workspace/${p.id}`);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition-colors ${
+                      p.id === project.id ? "bg-indigo-950/60 text-indigo-300 font-bold border border-indigo-500/30" : "text-slate-300 hover:bg-slate-800"
+                    }`}
+                  >
+                    <span className="truncate">{p.name}</span>
+                    {p.id === project.id && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                  </button>
+                ))}
+              </div>
+              <div className="pt-1 border-t border-slate-800">
+                <button
+                  onClick={() => {
+                    setShowProjectDropdown(false);
+                    onNewProject();
+                  }}
+                  className="w-full py-1.5 px-2 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-center font-bold text-[11px] transition-all"
+                >
+                  + Create New Project
+                </button>
+              </div>
+            </div>
           )}
 
           {isSaving && (
@@ -138,7 +242,7 @@ export function WorkspaceHeader({
         </button>
       </div>
 
-      {/* Right: Actions (New, GitHub, Export, Deploy, Settings) */}
+      {/* Right: Actions (New, Share, GitHub, Export, Deploy, Settings) */}
       <div className="flex items-center gap-2">
         <button
           onClick={onNewProject}
@@ -147,6 +251,16 @@ export function WorkspaceHeader({
         >
           <Plus className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">New</span>
+        </button>
+
+        {/* Share Live Link Button */}
+        <button
+          onClick={onOpenShare}
+          className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-indigo-950/40 border border-indigo-500/40 hover:bg-indigo-900/60 text-indigo-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all"
+          title="Share Preview URL & Multi-User Testing (Zero Port Req)"
+        >
+          <Share2 className="w-3.5 h-3.5 text-indigo-400" />
+          <span className="hidden sm:inline">Share Live</span>
         </button>
 
         <button

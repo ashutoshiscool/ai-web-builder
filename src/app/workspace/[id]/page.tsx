@@ -9,6 +9,7 @@ import { NewProjectModal } from "@/components/workspace/NewProjectModal";
 import { SettingsModal } from "@/components/workspace/SettingsModal";
 import { DeployModal } from "@/components/workspace/DeployModal";
 import { GitHubModal } from "@/components/workspace/GitHubModal";
+import { ShareModal } from "@/components/workspace/ShareModal";
 import { Project } from "@/lib/storage/project-store";
 import { useRouter } from "next/navigation";
 import { Bot, Eye, Code2 } from "lucide-react";
@@ -38,6 +39,7 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDeployOpen, setIsDeployOpen] = useState(false);
   const [isGithubOpen, setIsGithubOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   // Fetch project data
   useEffect(() => {
@@ -125,7 +127,6 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
                   prev.map((t) => (t.id === payload.id ? { ...t, status: "completed", result: payload.result } : t))
                 );
               } else if (eventType === "file_changed") {
-                // Update file in project state live!
                 setProject((prev) => {
                   if (!prev) return null;
                   return {
@@ -137,7 +138,6 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
               } else if (eventType === "chunk") {
                 setStreamingText((prev) => prev + payload.text);
               } else if (eventType === "complete") {
-                // Append assistant message
                 setProject((prev) => {
                   if (!prev) return null;
                   return {
@@ -225,7 +225,6 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
       body: JSON.stringify({ action: "restore", checkpointId }),
     });
     if (res.ok) {
-      // Reload project
       const freshRes = await fetch(`/api/projects/${project.id}`);
       const freshData = await freshRes.json();
       setProject(freshData.project);
@@ -280,6 +279,7 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenDeploy={() => setIsDeployOpen(true)}
         onOpenGithub={() => setIsGithubOpen(true)}
+        onOpenShare={() => setIsShareOpen(true)}
         onExportZip={handleExportZip}
       />
 
@@ -431,6 +431,11 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
       <GitHubModal
         isOpen={isGithubOpen}
         onClose={() => setIsGithubOpen(false)}
+        project={project}
+      />
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
         project={project}
       />
     </div>

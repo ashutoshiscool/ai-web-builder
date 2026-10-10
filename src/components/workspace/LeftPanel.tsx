@@ -4,9 +4,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { 
   Bot, User, Sparkles, Send, Square, Play, RefreshCw, 
   Terminal, CheckCircle2, ChevronRight, ChevronDown, 
-  Sliders, Layers, Zap, AlertCircle, Wrench, FileCode, Check
+  Sliders, Layers, Zap, AlertCircle, Wrench, FileCode, Check,
+  Cpu, ArrowRight
 } from "lucide-react";
 import { Project, ChatMessage } from "@/lib/storage/project-store";
+import { AVAILABLE_MODELS } from "@/lib/providers/ai-gateway";
 
 interface LeftPanelProps {
   project: Project;
@@ -34,7 +36,6 @@ export function LeftPanel({
     project.settings.agentMode || "architect"
   );
   const [model, setModel] = useState(project.settings.model || "gemini-3.8-flash");
-  const [showToolsDrawer, setShowToolsDrawer] = useState(true);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -59,12 +60,17 @@ export function LeftPanel({
     }
   };
 
+  const categories = ["Google", "Anthropic", "OpenAI", "DeepSeek", "xAI / Grok", "Moonshot / Kimi", "Open Weights"] as const;
+
   const suggestions = [
     "Build a SaaS dashboard with PostgreSQL & Stripe",
     "Add interactive dark mode toggle",
     "Add responsive mobile navigation drawer",
     "Add live search and category filter",
     "Add CSV export and analytics chart",
+    "Add authentication modal and JWT state",
+    "Add toast notification feedback system",
+    "Add real-time KPI metrics and sparklines",
   ];
 
   return (
@@ -77,18 +83,22 @@ export function LeftPanel({
             <span>AI Coding Agent</span>
           </div>
 
-          {/* Model Selector */}
+          {/* Model Selector with All Flagship Models */}
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
             disabled={isGenerating}
-            className="bg-[#151926] border border-slate-800 text-[11px] rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-indigo-500 font-medium"
+            className="bg-[#151926] border border-slate-800 text-[11px] rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none focus:border-indigo-500 font-medium max-w-[210px]"
           >
-            <option value="gemini-3.8-flash">Gemini 3.8 Flash (High Speed)</option>
-            <option value="claude-sonnet-5">Claude 3.7 Sonnet / Fable</option>
-            <option value="gpt-6-astra">GPT-6 Astra / 4o</option>
-            <option value="deepseek-r1">DeepSeek R1 Reasoning</option>
-            <option value="ollama-qwen">Ollama Local (Offline)</option>
+            {categories.map((cat) => (
+              <optgroup key={cat} label={cat} className="bg-[#0e111a] text-indigo-400 font-bold">
+                {AVAILABLE_MODELS.filter((m) => m.category === cat).map((m) => (
+                  <option key={m.id} value={m.id} className="text-slate-200 bg-[#121624]">
+                    {m.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
           </select>
         </div>
 
@@ -242,17 +252,21 @@ export function LeftPanel({
       </div>
 
       {/* Suggested Prompts (when idle) */}
-      {!isGenerating && project.conversations.length < 3 && (
+      {!isGenerating && (
         <div className="px-3 py-2 border-t border-[#1e2436] bg-[#0d0f17]">
-          <div className="text-[10px] text-slate-500 font-medium mb-1.5">Try a suggested prompt:</div>
-          <div className="flex flex-wrap gap-1">
-            {suggestions.slice(0, 3).map((s, idx) => (
+          <div className="text-[10px] text-slate-500 font-medium mb-1.5 flex items-center justify-between">
+            <span>Quick Feature Enhancements:</span>
+            <span className="text-indigo-400 text-[9px] font-mono">1-Click</span>
+          </div>
+          <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+            {suggestions.map((s, idx) => (
               <button
                 key={idx}
                 onClick={() => setPrompt(s)}
-                className="text-[10px] px-2 py-1 rounded bg-[#151926] hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors text-left"
+                className="text-[10px] px-2 py-1 rounded bg-[#151926] hover:bg-indigo-600/20 border border-slate-800 hover:border-indigo-500/40 text-slate-300 hover:text-white transition-all text-left truncate max-w-[200px]"
+                title={s}
               >
-                {s}
+                + {s}
               </button>
             ))}
           </div>

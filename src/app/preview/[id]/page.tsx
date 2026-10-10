@@ -1,6 +1,9 @@
 import { getProject } from "@/lib/storage/project-store";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function PreviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const project = getProject(id);
