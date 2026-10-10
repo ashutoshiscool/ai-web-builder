@@ -1,270 +1,234 @@
 import React, { useState } from 'react';
 import { 
-  Coffee, ShoppingBag, Search, Menu, X, Star, Check, 
-  Sparkles, Flame, Shield, ChevronRight, SlidersHorizontal, 
-  Heart, Plus, Minus, ArrowRight, Play, Award
+  Play, Info, Search, Check, ChevronRight,
+  X, Flame, Coffee, Menu, Sparkles, ShoppingBag, Sun, Moon
 } from 'lucide-react';
 
 interface CoffeeItem {
   id: string;
-  name: string;
-  origin: string;
-  roastLevel: 'Light' | 'Medium' | 'Dark' | 'Espresso';
-  process: string;
+  title: string;
+  category: 'single-origin' | 'blend' | 'masterclass' | 'equipment';
+  matchScore: number;
+  roastLevel: 'Light' | 'Medium' | 'Dark' | 'Omni';
+  originOrDuration: string;
   flavorNotes: string[];
-  price: number;
-  rating: number;
-  reviewsCount: number;
-  image: string;
-  badge?: string;
   description: string;
+  thumbnail: string;
+  backdrop: string;
 }
 
 const COFFEE_CATALOG: CoffeeItem[] = [
   {
     id: '1',
-    name: 'Ethiopia Yirgacheffe Aricha',
-    origin: 'Gedeb, Yirgacheffe (Elevation: 2,100m)',
+    title: 'Ethiopia Yirgacheffe G1 Natural',
+    category: 'single-origin',
+    matchScore: 99,
     roastLevel: 'Light',
-    process: 'Natural Washed',
-    flavorNotes: ['Jasmine', 'Blueberry', 'Bergamot', 'Lemon Zest'],
-    price: 21.50,
-    rating: 4.9,
-    reviewsCount: 128,
-    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=600&q=80',
-    badge: 'Bestseller',
-    description: 'A legendary Ethiopian single-origin boasting vibrant floral aromas and a sparkling, tea-like body with sweet berry undertones.'
+    originOrDuration: '2,100m · 300g Bag',
+    flavorNotes: ['Blueberry', 'Jasmine', 'Bergamot', 'Honey'],
+    description: 'Exquisite heirloom beans processed under African sun drying beds. Delivers vibrant floral aromas with a sparkling citrus acidity and syrupy body.',
+    thumbnail: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+    backdrop: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1600&q=80',
   },
   {
     id: '2',
-    name: 'Sumatra Mandheling Reserve',
-    origin: 'Lake Toba, Sumatra',
-    roastLevel: 'Dark',
-    process: 'Wet-Hulled (Giling Basah)',
-    flavorNotes: ['Dark Chocolate', 'Cedar', 'Black Cherry', 'Tobacco'],
-    price: 19.00,
-    rating: 4.8,
-    reviewsCount: 94,
-    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
-    badge: 'Rich & Bold',
-    description: 'Full-bodied with low acidity and a syrupy mouthfeel. Notes of bittersweet dark chocolate and earthy cedar wood.'
+    title: 'Panama Hacienda La Esmeralda Geisha',
+    category: 'single-origin',
+    matchScore: 98,
+    roastLevel: 'Light',
+    originOrDuration: '1,850m · 250g Reserve',
+    flavorNotes: ['White Peach', 'Jasmine', 'Lemongrass'],
+    description: 'The crown jewel of specialty coffee. Cultivated in volcanic soil under shaded canopies in Boquete, Panama. Unmatched aromatic complexity.',
+    thumbnail: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80',
+    backdrop: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1600&q=80',
   },
   {
     id: '3',
-    name: 'Colombia Huila Supremo',
-    origin: 'San Agustín, Huila',
+    title: 'Mastering V60 Pour-Over Extraction',
+    category: 'masterclass',
+    matchScore: 96,
     roastLevel: 'Medium',
-    process: 'Fully Washed',
-    flavorNotes: ['Caramel', 'Red Apple', 'Milk Chocolate', 'Almond'],
-    price: 18.50,
-    rating: 4.9,
-    reviewsCount: 215,
-    image: 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?auto=format&fit=crop&w=600&q=80',
-    badge: 'Staff Pick',
-    description: 'Immensely balanced and approachable. Sweet caramel sweetness backed by crisp red apple acidity and a nutty finish.'
+    originOrDuration: '24m Masterclass',
+    flavorNotes: ['Technique', 'Ratio 1:16', 'Water Temp'],
+    description: 'Join World Brewers Cup champion in a step-by-step masterclass on pour-over geometry, agitation, and dial-in extraction curves.',
+    thumbnail: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=600&q=80',
+    backdrop: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1600&q=80',
   },
   {
     id: '4',
-    name: 'Midnight Crema Espresso',
-    origin: 'Blend (Guatemala & Brazil)',
-    roastLevel: 'Espresso',
-    process: 'Natural & Washed Blend',
-    flavorNotes: ['Hazelnut', 'Molasses', 'Vanilla Cream', 'Cocoa'],
-    price: 20.00,
-    rating: 5.0,
-    reviewsCount: 310,
-    image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=600&q=80',
-    badge: 'Best for Espresso',
-    description: 'Engineered specifically for espresso machines and moka pots. Pulls thick tiger-stripe crema with zero harsh bitterness.'
+    title: 'Midnight Velvet Espresso Blend',
+    category: 'blend',
+    matchScore: 95,
+    roastLevel: 'Dark',
+    originOrDuration: 'Guatemala & Sumatra · 500g',
+    flavorNotes: ['Dark Chocolate', 'Molasses', 'Toasted Walnut'],
+    description: 'Crafted specifically for rich crema and heavy body. Cuts effortlessly through milk for velvety flat whites and intense double ristrettos.',
+    thumbnail: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=600&q=80',
+    backdrop: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=1600&q=80',
   },
   {
     id: '5',
-    name: 'Guatemala Antigua San José',
-    origin: 'Antigua Valley, Guatemala',
+    title: 'Colombia Huila Pink Bourbon',
+    category: 'single-origin',
+    matchScore: 94,
     roastLevel: 'Medium',
-    process: 'Washed',
-    flavorNotes: ['Toffee', 'Orange Blossom', 'Milk Chocolate'],
-    price: 22.00,
-    rating: 4.7,
-    reviewsCount: 82,
-    image: 'https://images.unsplash.com/photo-1610887588638-773099955404?auto=format&fit=crop&w=600&q=80',
-    description: 'Grown in volcanic soil surrounded by three volcanoes. Offers a spicy, complex cup with distinct floral sweetness.'
+    originOrDuration: '1,900m · 300g Bag',
+    flavorNotes: ['Pink Guava', 'Raspberry', 'Panela'],
+    description: 'A rare natural mutation of red and yellow bourbon yielding extraordinarily sweet, tropical fruit profiles with a creamy mouthfeel.',
+    thumbnail: 'https://images.unsplash.com/photo-1507133750043-495f57cf04d5?auto=format&fit=crop&w=600&q=80',
+    backdrop: 'https://images.unsplash.com/photo-1507133750043-495f57cf04d5?auto=format&fit=crop&w=1600&q=80',
   },
   {
     id: '6',
-    name: 'Costa Rica Tarrazú Honey',
-    origin: 'Tarrazú Region',
-    roastLevel: 'Light',
-    process: 'Yellow Honey Process',
-    flavorNotes: ['Brown Sugar', 'Peach', 'Vanilla Bean', 'Red Honey'],
-    price: 24.00,
-    rating: 4.9,
-    reviewsCount: 67,
-    image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=600&q=80',
-    badge: 'Limited Harvest',
-    description: 'Mucilage left on the bean during sun drying imparts intense natural sweetness reminiscent of wildflower honey and stone fruit.'
+    title: 'The Chemex & Cold Drip Science',
+    category: 'masterclass',
+    matchScore: 92,
+    roastLevel: 'Medium',
+    originOrDuration: '32m Masterclass',
+    flavorNotes: ['Clarity', 'Immersion', 'Flow Rate'],
+    description: 'Unlock crystal-clear tasting notes using bonded paper filters and slow-steep cold extraction mathematics.',
+    thumbnail: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=600&q=80',
+    backdrop: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=1600&q=80',
   }
 ];
 
-interface CartItem {
-  coffee: CoffeeItem;
-  quantity: number;
-  grind: string;
-}
-
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'shop' | 'subscriptions' | 'quiz' | 'brewguides'>('shop');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRoast, setSelectedRoast] = useState<string>('All');
+  const [activeTab, setActiveTab] = useState<'home' | 'single-origin' | 'blend' | 'masterclass' | 'mylist'>('home');
   const [selectedCoffee, setSelectedCoffee] = useState<CoffeeItem | null>(null);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [grindPreference, setGrindPreference] = useState('Whole Bean');
+  const [isBrewing, setIsBrewing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [myList, setMyList] = useState<string[]>(['1', '3']);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'explorer' | 'connoisseur' | 'roaster'>('connoisseur');
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Quiz state
-  const [quizStep, setQuizStep] = useState(1);
-  const [quizAnswers, setQuizAnswers] = useState({ roast: '', brewMethod: '', flavor: '' });
-  const [quizResult, setQuizResult] = useState<CoffeeItem | null>(null);
-
-  const addToCart = (coffee: CoffeeItem, grind: string = 'Whole Bean') => {
-    setCart(prevCart => {
-      const existingIndex = prevCart.findIndex(item => item.coffee.id === coffee.id && item.grind === grind);
-      if (existingIndex > -1) {
-        const newCart = [...prevCart];
-        newCart[existingIndex].quantity += 1;
-        return newCart;
-      }
-      return [...prevCart, { coffee, quantity: 1, grind }];
-    });
-    setIsCartOpen(true);
+  const toggleMyList = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (myList.includes(id)) {
+      setMyList(myList.filter(item => item !== id));
+    } else {
+      setMyList([...myList, id]);
+    }
   };
 
-  const updateQuantity = (index: number, delta: number) => {
-    setCart(prevCart => {
-      const newCart = [...prevCart];
-      newCart[index].quantity += delta;
-      if (newCart[index].quantity <= 0) {
-        return newCart.filter((_, i) => i !== index);
-      }
-      return newCart;
-    });
-  };
-
-  const totalCartPrice = cart.reduce((sum, item) => sum + item.coffee.price * item.quantity, 0);
-
-  const filteredCoffee = COFFEE_CATALOG.filter(coffee => {
-    const matchesSearch = coffee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          coffee.origin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          coffee.flavorNotes.some(f => f.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesRoast = selectedRoast === 'All' || coffee.roastLevel === selectedRoast;
-    return matchesSearch && matchesRoast;
+  const filteredCatalog = COFFEE_CATALOG.filter(item => {
+    if (searchQuery) {
+      return item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             item.flavorNotes.some(f => f.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    if (activeTab === 'single-origin') return item.category === 'single-origin';
+    if (activeTab === 'blend') return item.category === 'blend';
+    if (activeTab === 'masterclass') return item.category === 'masterclass';
+    if (activeTab === 'mylist') return myList.includes(item.id);
+    return true;
   });
 
+  const featured = COFFEE_CATALOG[0];
+
   return (
-    <div className="min-h-screen bg-[#0c0a09] text-stone-100 font-sans selection:bg-amber-600 selection:text-white">
-      
-      {/* Top Notification Bar */}
-      <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 text-amber-200 text-xs py-2 px-4 text-center font-medium border-b border-amber-900/50 flex items-center justify-center gap-2">
-        <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-        <span>Free artisan shipping on all recurring subscriptions & orders over $45! Use code <strong className="text-white underline">FRESHBREW</strong></span>
-      </div>
+    <div className={`min-h-screen font-sans transition-colors duration-300 ${isDarkMode ? 'bg-[#0d0d0d] text-white selection:bg-[#f59e0b] selection:text-black' : 'bg-[#f8f6f0] text-zinc-900 selection:bg-amber-500 selection:text-white'}`}>
+      {/* Navbar */}
+      <header className={`fixed top-0 left-0 right-0 z-40 px-4 sm:px-8 py-4 flex items-center justify-between backdrop-blur-md transition-all ${isDarkMode ? 'bg-gradient-to-b from-black/95 via-black/70 to-transparent' : 'bg-gradient-to-b from-white/95 via-white/70 to-transparent border-b border-zinc-200/60'}`}>
+        <div className="flex items-center gap-4 sm:gap-8">
+          <button 
+            onClick={() => setShowMobileMenu(true)}
+            className={`md:hidden p-1 ${isDarkMode ? 'text-zinc-300 hover:text-white' : 'text-zinc-600 hover:text-black'}`}
+            aria-label="Open Menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
 
-      {/* Header / Navbar */}
-      <header className="sticky top-0 z-40 bg-[#0c0a09]/90 backdrop-blur-md border-b border-stone-800/80 px-4 sm:px-8 py-4 transition-all">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <button 
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden text-stone-300 hover:text-white p-1"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-
-            <div 
-              onClick={() => setActiveTab('shop')} 
-              className="flex items-center gap-2.5 cursor-pointer group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center shadow-lg shadow-amber-900/30 group-hover:scale-105 transition-transform">
-                <Coffee className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="font-black text-lg sm:text-xl tracking-tight text-white uppercase block leading-none">
-                  Aroma Craft
-                </span>
-                <span className="text-[10px] tracking-widest text-amber-500 uppercase font-semibold">
-                  Artisanal Roasters
-                </span>
-              </div>
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setActiveTab('home')}>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-lg shadow-amber-600/30">
+              <Coffee className="w-5 h-5 text-black" />
             </div>
-
-            <nav className="hidden lg:flex items-center gap-8 text-sm font-medium ml-6">
-              <button 
-                onClick={() => setActiveTab('shop')}
-                className={`transition-colors py-1 border-b-2 ${activeTab === 'shop' ? 'border-amber-500 text-amber-400 font-semibold' : 'border-transparent text-stone-300 hover:text-white'}`}
-              >
-                Shop Roasts
-              </button>
-              <button 
-                onClick={() => setActiveTab('subscriptions')}
-                className={`transition-colors py-1 border-b-2 ${activeTab === 'subscriptions' ? 'border-amber-500 text-amber-400 font-semibold' : 'border-transparent text-stone-300 hover:text-white'}`}
-              >
-                Subscriptions
-              </button>
-              <button 
-                onClick={() => setActiveTab('quiz')}
-                className={`transition-colors py-1 border-b-2 flex items-center gap-1.5 ${activeTab === 'quiz' ? 'border-amber-500 text-amber-400 font-semibold' : 'border-transparent text-stone-300 hover:text-white'}`}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                Coffee Matcher
-              </button>
-              <button 
-                onClick={() => setActiveTab('brewguides')}
-                className={`transition-colors py-1 border-b-2 ${activeTab === 'brewguides' ? 'border-amber-500 text-amber-400 font-semibold' : 'border-transparent text-stone-300 hover:text-white'}`}
-              >
-                Brew Guides
-              </button>
-            </nav>
+            <div>
+              <span className="text-amber-500 font-black text-xl sm:text-2xl tracking-tighter uppercase drop-shadow-[0_2px_10px_rgba(245,158,11,0.4)]">
+                Migre
+              </span>
+              <span className={`hidden sm:inline-block ml-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold ${isDarkMode ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-amber-500/10 text-amber-700 border border-amber-500/30'}`}>
+                ARTISANAL 4K
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="relative hidden sm:block">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input 
-                type="text"
-                placeholder="Search origin, notes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-stone-900 border border-stone-800 rounded-full pl-9 pr-4 py-1.5 text-xs text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-600 w-48 lg:w-60 transition-all"
-              />
-            </div>
-
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <button 
-              onClick={() => setIsCartOpen(true)}
-              className="relative p-2.5 rounded-full bg-stone-900 border border-stone-800 hover:border-amber-600/50 text-stone-200 hover:text-amber-400 transition-all flex items-center gap-2"
+              onClick={() => setActiveTab('home')}
+              className={`transition-colors ${activeTab === 'home' ? 'text-amber-500 font-semibold' : isDarkMode ? 'text-zinc-300 hover:text-white' : 'text-zinc-600 hover:text-black'}`}
             >
-              <ShoppingBag className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs font-semibold">
-                ${totalCartPrice.toFixed(2)}
-              </span>
-              {cart.reduce((sum, item) => sum + item.quantity, 0) > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-600 text-white text-[10px] font-bold flex items-center justify-center shadow-md animate-bounce">
-                  {cart.reduce((sum, item) => sum + item.quantity, 0)}
-                </span>
-              )}
+              Home
             </button>
+            <button 
+              onClick={() => setActiveTab('single-origin')}
+              className={`transition-colors ${activeTab === 'single-origin' ? 'text-amber-500 font-semibold' : isDarkMode ? 'text-zinc-300 hover:text-white' : 'text-zinc-600 hover:text-black'}`}
+            >
+              Single Origins
+            </button>
+            <button 
+              onClick={() => setActiveTab('blend')}
+              className={`transition-colors ${activeTab === 'blend' ? 'text-amber-500 font-semibold' : isDarkMode ? 'text-zinc-300 hover:text-white' : 'text-zinc-600 hover:text-black'}`}
+            >
+              Espresso Blends
+            </button>
+            <button 
+              onClick={() => setActiveTab('masterclass')}
+              className={`transition-colors ${activeTab === 'masterclass' ? 'text-amber-500 font-semibold' : isDarkMode ? 'text-zinc-300 hover:text-white' : 'text-zinc-600 hover:text-black'}`}
+            >
+              Brew Masterclasses
+            </button>
+            <button 
+              onClick={() => setActiveTab('mylist')}
+              className={`transition-colors ${activeTab === 'mylist' ? 'text-amber-500 font-semibold' : isDarkMode ? 'text-zinc-300 hover:text-white' : 'text-zinc-600 hover:text-black'}`}
+            >
+              Roast Wishlist ({myList.length})
+            </button>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="relative flex items-center">
+            <Search className={`w-4 h-4 absolute left-3 pointer-events-none ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`} />
+            <input 
+              type="text"
+              placeholder="Beans, notes, origins..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`border rounded-full pl-9 pr-3 sm:px-4 py-1.5 text-xs focus:outline-none focus:border-amber-500 w-28 sm:w-60 transition-all shadow-inner ${isDarkMode ? 'bg-black/70 border-zinc-700/80 text-white placeholder-zinc-400' : 'bg-white/90 border-zinc-300 text-black placeholder-zinc-500'}`}
+            />
+          </div>
+
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            aria-label="Toggle Theme"
+            className={`p-2 rounded-full border transition-all ${isDarkMode ? 'bg-zinc-900 border-zinc-700 text-amber-400 hover:bg-zinc-800' : 'bg-white border-zinc-300 text-amber-600 hover:bg-zinc-100 shadow-sm'}`}
+          >
+            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+
+          <button 
+            onClick={() => setShowSubscriptionModal(true)}
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-xs font-bold text-black shadow-lg shadow-amber-500/30 transition-all transform hover:scale-105"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span>Subscribe Box</span>
+          </button>
+
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-orange-700 flex items-center justify-center font-bold text-xs shadow-md text-white border border-amber-500/50">
+            MG
           </div>
         </div>
       </header>
 
-      {/* Mobile Drawer */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex lg:hidden animate-fadeIn">
-          <div className="w-4/5 max-w-xs bg-[#12100e] h-full border-r border-stone-800 p-6 flex flex-col justify-between shadow-2xl relative">
+      {/* Mobile Navigation Drawer */}
+      {showMobileMenu && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex md:hidden animate-fadeIn">
+          <div className={`w-4/5 max-w-xs h-full p-6 flex flex-col justify-between shadow-2xl relative ${isDarkMode ? 'bg-[#141414] border-r border-zinc-800 text-white' : 'bg-white border-r border-zinc-200 text-black'}`}>
             <button 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-800 text-stone-300 flex items-center justify-center"
+              onClick={() => setShowMobileMenu(false)}
+              className={`absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center ${isDarkMode ? 'bg-zinc-800 text-white' : 'bg-zinc-200 text-black'}`}
             >
               <X className="w-4 h-4" />
             </button>
@@ -272,599 +236,327 @@ export default function App() {
             <div className="space-y-6">
               <div className="flex items-center gap-2 pt-2">
                 <Coffee className="w-6 h-6 text-amber-500" />
-                <span className="font-bold text-lg text-white">Aroma Craft</span>
+                <span className="text-amber-500 font-black text-xl tracking-tighter uppercase">
+                  Migre
+                </span>
               </div>
 
               <nav className="flex flex-col space-y-3 font-medium text-sm">
                 <button 
-                  onClick={() => { setActiveTab('shop'); setIsMobileMenuOpen(false); }}
-                  className={`text-left py-2 px-3 rounded-lg ${activeTab === 'shop' ? 'bg-amber-600/20 text-amber-400 font-bold border border-amber-600/30' : 'text-stone-300'}`}
+                  onClick={() => { setActiveTab('home'); setShowMobileMenu(false); }}
+                  className={`text-left py-2.5 px-3 rounded-lg transition-colors ${activeTab === 'home' ? 'bg-amber-500 text-black font-bold' : isDarkMode ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-700 hover:bg-zinc-100'}`}
                 >
-                  Shop Roasts
+                  Home
                 </button>
                 <button 
-                  onClick={() => { setActiveTab('subscriptions'); setIsMobileMenuOpen(false); }}
-                  className={`text-left py-2 px-3 rounded-lg ${activeTab === 'subscriptions' ? 'bg-amber-600/20 text-amber-400 font-bold border border-amber-600/30' : 'text-stone-300'}`}
+                  onClick={() => { setActiveTab('single-origin'); setShowMobileMenu(false); }}
+                  className={`text-left py-2.5 px-3 rounded-lg transition-colors ${activeTab === 'single-origin' ? 'bg-amber-500 text-black font-bold' : isDarkMode ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-700 hover:bg-zinc-100'}`}
                 >
-                  Subscriptions
+                  Single Origins
                 </button>
                 <button 
-                  onClick={() => { setActiveTab('quiz'); setIsMobileMenuOpen(false); }}
-                  className={`text-left py-2 px-3 rounded-lg flex items-center gap-2 ${activeTab === 'quiz' ? 'bg-amber-600/20 text-amber-400 font-bold border border-amber-600/30' : 'text-stone-300'}`}
+                  onClick={() => { setActiveTab('blend'); setShowMobileMenu(false); }}
+                  className={`text-left py-2.5 px-3 rounded-lg transition-colors ${activeTab === 'blend' ? 'bg-amber-500 text-black font-bold' : isDarkMode ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-700 hover:bg-zinc-100'}`}
                 >
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  Coffee Matcher Quiz
+                  Espresso Blends
                 </button>
                 <button 
-                  onClick={() => { setActiveTab('brewguides'); setIsMobileMenuOpen(false); }}
-                  className={`text-left py-2 px-3 rounded-lg ${activeTab === 'brewguides' ? 'bg-amber-600/20 text-amber-400 font-bold border border-amber-600/30' : 'text-stone-300'}`}
+                  onClick={() => { setActiveTab('masterclass'); setShowMobileMenu(false); }}
+                  className={`text-left py-2.5 px-3 rounded-lg transition-colors ${activeTab === 'masterclass' ? 'bg-amber-500 text-black font-bold' : isDarkMode ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-700 hover:bg-zinc-100'}`}
                 >
-                  Brew Guides
+                  Brew Masterclasses
+                </button>
+                <button 
+                  onClick={() => { setActiveTab('mylist'); setShowMobileMenu(false); }}
+                  className={`text-left py-2.5 px-3 rounded-lg transition-colors ${activeTab === 'mylist' ? 'bg-amber-500 text-black font-bold' : isDarkMode ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-700 hover:bg-zinc-100'}`}
+                >
+                  Roast Wishlist ({myList.length})
                 </button>
               </nav>
             </div>
 
-            <div className="pt-6 border-t border-stone-800 text-xs text-stone-500 text-center">
-              Small batch roasted in Portland, OR.
+            <div className={`pt-6 border-t space-y-3 ${isDarkMode ? 'border-zinc-800' : 'border-zinc-200'}`}>
+              <button 
+                onClick={() => { setShowSubscriptionModal(true); setShowMobileMenu(false); }}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-md bg-amber-500 text-black font-bold text-xs shadow-lg"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>Subscribe Box</span>
+              </button>
+              <div className="text-[10px] text-zinc-500 text-center">
+                Migre Roastery v3.2 • 100% Arabica
+              </div>
             </div>
           </div>
-          <div className="flex-1" onClick={() => setIsMobileMenuOpen(false)}></div>
+          <div className="flex-1" onClick={() => setShowMobileMenu(false)}></div>
         </div>
       )}
 
       {/* Main Content Area */}
       <main className="pb-24">
-        {activeTab === 'shop' && (
-          <div className="space-y-12">
-            {/* Hero Section */}
-            <div className="relative overflow-hidden bg-stone-900 border-b border-stone-800 py-20 px-6 sm:px-12 lg:px-20">
-              <div className="absolute inset-0 z-0 opacity-40">
+        {activeTab === 'home' && !searchQuery && (
+          <div className="relative">
+            {/* Hero Spotlight Banner */}
+            <div className="relative h-[70vh] sm:h-[82vh] w-full">
+              <div className="absolute inset-0">
                 <img 
-                  src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1600&q=80" 
-                  alt="Coffee beans background" 
-                  className="w-full h-full object-cover filter brightness-50"
+                  src={featured.backdrop} 
+                  alt={featured.title} 
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0c0a09] via-[#0c0a09]/80 to-transparent"></div>
+                <div className={`absolute inset-0 ${isDarkMode ? 'bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d]/50 to-black/60' : 'bg-gradient-to-t from-[#f8f6f0] via-[#f8f6f0]/60 to-black/40'}`}></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent"></div>
               </div>
 
-              <div className="relative z-10 max-w-2xl space-y-6">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-600/20 text-amber-400 text-xs font-bold border border-amber-500/30">
-                  <Flame className="w-3.5 h-3.5" />
-                  Roasted Fresh Weekly • 100% Arabica
+              <div className="absolute bottom-20 left-6 sm:left-12 max-w-2xl space-y-4 z-10">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-2.5 py-0.5 rounded bg-amber-500 text-black text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
+                    <Sparkles className="w-3 h-3 fill-current" />
+                    CHEF&apos;S ROAST OF THE WEEK
+                  </span>
+                  <span className="text-amber-400 font-bold text-xs">99% Connoisseur Match</span>
+                  <span className="px-2 py-0.5 border border-amber-500/40 text-amber-300 text-[10px] rounded font-mono">{featured.roastLevel} Roast</span>
                 </div>
-                <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
-                  Single-Origin Coffee, Masterfully Roasted.
+
+                <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white drop-shadow-md">
+                  {featured.title}
                 </h1>
-                <p className="text-sm sm:text-base text-stone-300 leading-relaxed">
-                  Sourced ethically from high-altitude farms across Ethiopia, Sumatra, and Colombia. Small-batch roasted to unlock transcendent flavor notes in every cup.
+
+                <p className="text-sm sm:text-base text-zinc-200 line-clamp-3 drop-shadow">
+                  {featured.description}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 pt-2">
-                  <button 
-                    onClick={() => {
-                      const el = document.getElementById('catalog-grid');
-                      el?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm shadow-lg shadow-amber-900/40 transition-all flex items-center gap-2"
-                  >
-                    <span>Shop All Roasts</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('quiz')}
-                    className="px-6 py-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-sm border border-stone-700 transition-all flex items-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span>Find Your Match</span>
-                  </button>
-                </div>
-              </div>
-            </div>
 
-            {/* Catalog Filters & Grid */}
-            <div id="catalog-grid" className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-stone-800 pb-6">
-                <div>
-                  <h2 className="text-2xl font-black text-white">Current Roaster Selections</h2>
-                  <p className="text-xs text-stone-400 mt-0.5">Showing {filteredCoffee.length} exquisite artisan coffees</p>
-                </div>
-
-                <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-                  {['All', 'Light', 'Medium', 'Dark', 'Espresso'].map((roast) => (
-                    <button
-                      key={roast}
-                      onClick={() => setSelectedRoast(roast)}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${selectedRoast === roast ? 'bg-amber-600 text-white shadow-md shadow-amber-900/30' : 'bg-stone-900 text-stone-300 hover:bg-stone-800 border border-stone-800'}`}
-                    >
-                      {roast} Roast
-                    </button>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {featured.flavorNotes.map((note, idx) => (
+                    <span key={idx} className="px-2.5 py-1 rounded-md bg-black/60 border border-amber-500/30 text-amber-300 text-xs font-semibold backdrop-blur-md">
+                      ✨ {note}
+                    </span>
                   ))}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredCoffee.map((coffee) => (
-                  <div 
-                    key={coffee.id}
-                    className="group bg-stone-900/80 border border-stone-800 hover:border-amber-600/60 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-950">
-                        <img 
-                          src={coffee.image} 
-                          alt={coffee.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        {coffee.badge && (
-                          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-black bg-amber-600 text-white uppercase tracking-wider shadow-md">
-                            {coffee.badge}
-                          </span>
-                        )}
-                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-[10px] font-bold bg-black/70 backdrop-blur-md text-stone-300 border border-stone-700/50">
-                          {coffee.roastLevel} Roast
-                        </span>
-                      </div>
-
-                      <div className="p-6 space-y-3">
-                        <div className="flex items-center justify-between text-xs text-stone-400">
-                          <span className="truncate">{coffee.origin}</span>
-                          <div className="flex items-center gap-1 text-amber-400 font-bold flex-shrink-0">
-                            <Star className="w-3.5 h-3.5 fill-current" />
-                            <span>{coffee.rating}</span>
-                            <span className="text-stone-500 font-normal">({coffee.reviewsCount})</span>
-                          </div>
-                        </div>
-
-                        <h3 
-                          onClick={() => setSelectedCoffee(coffee)}
-                          className="font-black text-lg text-white group-hover:text-amber-400 transition-colors cursor-pointer"
-                        >
-                          {coffee.name}
-                        </h3>
-
-                        <p className="text-xs text-stone-400 line-clamp-2">
-                          {coffee.description}
-                        </p>
-
-                        <div className="flex flex-wrap gap-1.5 pt-1">
-                          {coffee.flavorNotes.map((note, idx) => (
-                            <span key={idx} className="px-2.5 py-0.5 rounded-full bg-stone-950 text-[10px] font-medium text-stone-300 border border-stone-800">
-                              {note}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-6 pt-0 flex items-center justify-between border-t border-stone-800/60 mt-4">
-                      <div>
-                        <span className="text-[10px] text-stone-500 uppercase block">12 oz Bag</span>
-                        <span className="text-xl font-black text-white">${coffee.price.toFixed(2)}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => setSelectedCoffee(coffee)}
-                          className="px-3.5 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold transition-all"
-                        >
-                          Details
-                        </button>
-                        <button 
-                          onClick={() => addToCart(coffee)}
-                          className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-md shadow-amber-900/30 transition-all flex items-center gap-1.5"
-                        >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>Add</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'subscriptions' && (
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-12">
-            <div className="text-center max-w-2xl mx-auto space-y-4">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-600/20 text-amber-400 text-xs font-bold border border-amber-500/30">
-                <Coffee className="w-3.5 h-3.5" />
-                Never Run Out of Fresh Coffee
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-black text-white">The Artisan Roast Club</h2>
-              <p className="text-sm sm:text-base text-stone-400">
-                Customized deliveries of freshly roasted single-origin beans straight to your door. Pause, skip, or cancel anytime. Save 15% on every shipment.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { name: 'The Explorer', bags: '1 Bag / Month', price: '$17.00', desc: 'Perfect for single coffee drinkers. Explore a new world-class origin every month.', popular: false },
-                { name: 'The Connoisseur', bags: '2 Bags / Month', price: '$32.00', desc: 'Our most popular plan. Ideal for couples or daily coffee enthusiasts.', popular: true },
-                { name: 'The Office & Cafe', bags: '4 Bags / Month', price: '$58.00', desc: 'For heavy households, remote teams, or true espresso addicts.', popular: false }
-              ].map((sub, i) => (
-                <div 
-                  key={i}
-                  className={`relative rounded-3xl p-8 border flex flex-col justify-between transition-all ${sub.popular ? 'bg-stone-900 border-amber-500 shadow-2xl shadow-amber-900/20 ring-2 ring-amber-500/50' : 'bg-stone-900/50 border-stone-800'}`}
-                >
-                  {sub.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-black bg-amber-600 text-white uppercase tracking-wider shadow-lg">
-                      MOST POPULAR CHOICE
-                    </span>
-                  )}
-                  <div>
-                    <h3 className="text-xl font-bold text-white">{sub.name}</h3>
-                    <p className="text-xs text-amber-500 font-semibold mt-1">{sub.bags}</p>
-                    <p className="text-xs text-stone-400 mt-3 mb-6">{sub.desc}</p>
-                    
-                    <div className="flex items-baseline gap-1 mb-6 pb-6 border-b border-stone-800">
-                      <span className="text-4xl font-black text-white">{sub.price}</span>
-                      <span className="text-xs text-stone-400">/delivery</span>
-                    </div>
-
-                    <ul className="space-y-3 mb-8">
-                      {['Free priority shipping', '15% off retail prices', 'Exclusive micro-lot access', 'Flexible delivery frequency'].map((feat, idx) => (
-                        <li key={idx} className="flex items-center gap-2.5 text-xs text-stone-300">
-                          <Check className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
+                <div className="flex items-center gap-3 pt-3">
                   <button 
                     onClick={() => {
-                      addToCart(COFFEE_CATALOG[i % COFFEE_CATALOG.length]);
-                      alert(`Successfully joined ${sub.name}! Your first roast is preparing.`);
+                      setSelectedCoffee(featured);
+                      setIsBrewing(true);
                     }}
-                    className={`w-full py-3 rounded-xl font-bold text-xs transition-all ${sub.popular ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-900/40' : 'bg-stone-800 hover:bg-stone-700 text-stone-200'}`}
+                    className="flex items-center gap-2 px-6 py-3 rounded-md bg-white hover:bg-zinc-200 text-black font-bold text-sm shadow-xl transition-all transform hover:scale-105"
                   >
-                    Start {sub.name} Subscription
+                    <Play className="w-5 h-5 fill-current text-amber-600" />
+                    <span>Brew Guide Simulation</span>
+                  </button>
+
+                  <button 
+                    onClick={() => setSelectedCoffee(featured)}
+                    className="flex items-center gap-2 px-6 py-3 rounded-md bg-zinc-800/80 hover:bg-zinc-800 text-white font-bold text-sm backdrop-blur-md border border-zinc-700 transition-all transform hover:scale-105"
+                  >
+                    <Info className="w-5 h-5" />
+                    <span>Tasting Notes & Origin</span>
                   </button>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'quiz' && (
-          <div className="max-w-2xl mx-auto px-4 sm:px-8 py-12">
-            <div className="bg-stone-900 border border-stone-800 rounded-3xl p-8 sm:p-12 shadow-2xl space-y-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-600/10 rounded-full filter blur-3xl pointer-events-none"></div>
-
-              {!quizResult ? (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <span className="px-3 py-1 rounded-full bg-amber-600/20 text-amber-400 text-xs font-bold border border-amber-500/30">
-                      Step {quizStep} of 3
-                    </span>
-                    <span className="text-xs text-stone-500 font-mono">Coffee Matchmaker</span>
-                  </div>
-
-                  {quizStep === 1 && (
-                    <div className="space-y-4">
-                      <h2 className="text-2xl sm:text-3xl font-black text-white">How do you like your roast profile?</h2>
-                      <p className="text-xs text-stone-400">This helps us determine how long the beans spend in the roaster drum.</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        {['Light & Fruity', 'Medium & Balanced', 'Dark & Bold', 'Intense Espresso'].map((opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => {
-                              setQuizAnswers({...quizAnswers, roast: opt});
-                              setQuizStep(2);
-                            }}
-                            className="p-4 rounded-xl bg-stone-950 border border-stone-800 hover:border-amber-500 text-left text-xs font-bold text-stone-200 hover:text-amber-400 transition-all flex items-center justify-between group"
-                          >
-                            <span>{opt}</span>
-                            <ChevronRight className="w-4 h-4 text-stone-600 group-hover:text-amber-500 transition-colors" />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {quizStep === 2 && (
-                    <div className="space-y-4">
-                      <h2 className="text-2xl sm:text-3xl font-black text-white">What is your primary brewing method?</h2>
-                      <p className="text-xs text-stone-400">Different gear extracts unique body and acidity.</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        {['Pour Over (V60 / Chemex)', 'Espresso Machine', 'French Press / Plunger', 'Drip Coffee Maker'].map((opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => {
-                              setQuizAnswers({...quizAnswers, brewMethod: opt});
-                              setQuizStep(3);
-                            }}
-                            className="p-4 rounded-xl bg-stone-950 border border-stone-800 hover:border-amber-500 text-left text-xs font-bold text-stone-200 hover:text-amber-400 transition-all flex items-center justify-between group"
-                          >
-                            <span>{opt}</span>
-                            <ChevronRight className="w-4 h-4 text-stone-600 group-hover:text-amber-500 transition-colors" />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {quizStep === 3 && (
-                    <div className="space-y-4">
-                      <h2 className="text-2xl sm:text-3xl font-black text-white">What flavor notes excite you most?</h2>
-                      <p className="text-xs text-stone-400">Choose your favorite tasting notes profile.</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        {['Floral & Citrus Berries', 'Chocolate & Caramel Sweetness', 'Earthy Cedar & Tobacco', 'Nutty Almond & Vanilla'].map((opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => {
-                              setQuizAnswers({...quizAnswers, flavor: opt});
-                              // Select matching coffee
-                              setQuizResult(COFFEE_CATALOG[Math.floor(Math.random() * COFFEE_CATALOG.length)]);
-                            }}
-                            className="p-4 rounded-xl bg-stone-950 border border-stone-800 hover:border-amber-500 text-left text-xs font-bold text-stone-200 hover:text-amber-400 transition-all flex items-center justify-between group"
-                          >
-                            <span>{opt}</span>
-                            <Sparkles className="w-4 h-4 text-amber-500" />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-6 text-center">
-                  <div className="w-16 h-16 rounded-full bg-amber-600/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto">
-                    <Sparkles className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <span className="text-xs text-amber-500 font-bold uppercase tracking-wider">Your Custom Match</span>
-                    <h2 className="text-3xl font-black text-white mt-1">{quizResult.name}</h2>
-                    <p className="text-xs text-stone-400 max-w-md mx-auto mt-2">
-                      Based on your preference for <strong className="text-stone-200">{quizAnswers.roast}</strong> and <strong className="text-stone-200">{quizAnswers.brewMethod}</strong>, this is your ultimate match!
-                    </p>
-                  </div>
-
-                  <div className="bg-stone-950 rounded-2xl p-6 border border-stone-800 flex items-center gap-4 text-left">
-                    <img src={quizResult.image} alt={quizResult.name} className="w-20 h-20 rounded-xl object-cover" />
-                    <div>
-                      <span className="text-[10px] text-amber-500 font-bold">{quizResult.origin}</span>
-                      <h4 className="font-bold text-white text-sm">{quizResult.name}</h4>
-                      <span className="text-xs font-black text-stone-200">${quizResult.price.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => {
-                        addToCart(quizResult);
-                        setQuizResult(null);
-                        setQuizStep(1);
-                      }}
-                      className="flex-1 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg shadow-amber-900/40 transition-all"
-                    >
-                      Add to Cart & Brew
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setQuizResult(null);
-                        setQuizStep(1);
-                      }}
-                      className="px-6 py-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs transition-all"
-                    >
-                      Retake Quiz
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'brewguides' && (
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-10">
-            <div className="text-center max-w-xl mx-auto space-y-3">
-              <h2 className="text-3xl font-black text-white">Master the Brew</h2>
-              <p className="text-xs sm:text-sm text-stone-400">Step-by-step masterclass guides by champion baristas to extract perfection every single morning.</p>
+        {/* Catalog Rows */}
+        <div className="px-6 sm:px-12 -mt-16 sm:-mt-24 relative z-20 space-y-10">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className={`text-lg sm:text-xl font-bold tracking-wide flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
+                <Flame className="w-5 h-5 text-amber-500" />
+                {searchQuery ? `Search Results for "${searchQuery}"` : activeTab === 'home' ? 'Trending Single Origins & Masterclasses' : `${activeTab.toUpperCase()} Collection`}
+              </h2>
+              <span className="text-xs text-amber-500 hover:text-amber-600 cursor-pointer flex items-center gap-1 font-medium">
+                Explore Full Roastery <ChevronRight className="w-4 h-4" />
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { title: 'The V60 Pour Over', time: '3 min', ratio: '1:16 Ratio', desc: 'Clean, vibrant extraction highlighting delicate floral and fruit notes.', image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80' },
-                { title: 'Espresso Dial-In', time: '28 sec', ratio: '1:2 Ratio', desc: 'Achieving rich tiger-stripe crema and velvety sweet balance.', image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=600&q=80' },
-                { title: 'French Press Immersion', time: '4 min', ratio: '1:15 Ratio', desc: 'Full-bodied, rich, and robust cup with natural oils preserved.', image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=600&q=80' }
-              ].map((guide, idx) => (
-                <div key={idx} className="bg-stone-900 rounded-2xl overflow-hidden border border-stone-800 group">
-                  <div className="relative aspect-video w-full overflow-hidden">
-                    <img src={guide.image} alt={guide.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-amber-600 text-white flex items-center justify-center shadow-lg shadow-amber-900/50">
-                        <Play className="w-5 h-5 fill-current ml-0.5" />
-                      </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+              {filteredCatalog.map((item) => (
+                <div 
+                  key={item.id}
+                  onClick={() => setSelectedCoffee(item)}
+                  className={`group relative rounded-lg overflow-hidden border transition-all duration-300 cursor-pointer shadow-lg hover:shadow-2xl hover:scale-105 hover:z-30 ${isDarkMode ? 'bg-[#141414] border-zinc-800 hover:border-amber-500/60' : 'bg-white border-zinc-200 hover:border-amber-500'}`}
+                >
+                  <div className="aspect-video w-full overflow-hidden relative">
+                    <img 
+                      src={item.thumbnail} 
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-bold text-amber-400 border border-amber-500/30">
+                      {item.roastLevel}
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCoffee(item);
+                          setIsBrewing(true);
+                        }}
+                        className="w-9 h-9 rounded-full bg-amber-500 text-black flex items-center justify-center shadow-lg hover:bg-amber-400 transition-colors font-bold"
+                      >
+                        <Play className="w-4 h-4 fill-current ml-0.5" />
+                      </button>
                     </div>
                   </div>
-                  <div className="p-6 space-y-3">
-                    <div className="flex items-center gap-3 text-xs text-amber-500 font-semibold">
-                      <span>{guide.time}</span>
-                      <span>•</span>
-                      <span>{guide.ratio}</span>
+
+                  <div className="p-3.5 space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-amber-500 font-semibold">{item.matchScore}% Match</span>
+                      <span className={isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}>{item.originOrDuration}</span>
                     </div>
-                    <h3 className="font-bold text-white text-lg">{guide.title}</h3>
-                    <p className="text-xs text-stone-400 leading-relaxed">{guide.desc}</p>
+
+                    <h3 className={`font-bold text-sm line-clamp-1 group-hover:text-amber-500 transition-colors ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
+                      {item.title}
+                    </h3>
+
+                    <div className="flex flex-wrap gap-1">
+                      {item.flavorNotes.slice(0, 2).map((note, i) => (
+                        <span key={i} className={`text-[10px] px-1.5 py-0.5 rounded border ${isDarkMode ? 'text-zinc-300 bg-zinc-900 border-zinc-800' : 'text-zinc-700 bg-zinc-100 border-zinc-200'}`}>
+                          {note}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 text-[11px]">
+                      <span className="text-zinc-500 font-mono">Fresh Roasted</span>
+                      <button 
+                        onClick={(e) => toggleMyList(item.id, e)}
+                        className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${myList.includes(item.id) ? 'bg-amber-500 border-amber-500 text-black font-bold' : isDarkMode ? 'border-zinc-700 text-zinc-300 hover:border-white' : 'border-zinc-300 text-zinc-700 hover:border-black'}`}
+                      >
+                        {myList.includes(item.id) ? <Check className="w-3.5 h-3.5" /> : '+'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        )}
+        </div>
       </main>
 
-      {/* Product Detail Modal */}
-      {selectedCoffee && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#141210] border border-stone-800 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl relative animate-fadeIn">
+      {/* Subscription Modal */}
+      {showSubscriptionModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className={`border rounded-2xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative animate-fadeIn ${isDarkMode ? 'bg-[#181818] border-zinc-800 text-white' : 'bg-white border-zinc-200 text-zinc-900'}`}>
             <button 
-              onClick={() => setSelectedCoffee(null)}
-              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-stone-900/80 hover:bg-stone-800 text-stone-300 flex items-center justify-center"
+              onClick={() => setShowSubscriptionModal(false)}
+              className={`absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center ${isDarkMode ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-zinc-200 text-black hover:bg-zinc-300'}`}
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="grid grid-cols-1 md:grid-cols-2">
-              <div className="relative aspect-square md:aspect-auto">
-                <img src={selectedCoffee.image} alt={selectedCoffee.name} className="w-full h-full object-cover" />
-              </div>
-
-              <div className="p-6 sm:p-8 space-y-6 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-xs text-amber-500 font-bold uppercase">{selectedCoffee.origin}</span>
-                    <h2 className="text-2xl font-black text-white mt-1">{selectedCoffee.name}</h2>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="px-2.5 py-0.5 rounded bg-stone-900 text-stone-300 text-[10px] font-bold border border-stone-800">{selectedCoffee.roastLevel} Roast</span>
-                      <span className="text-amber-400 text-xs font-bold flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 fill-current" /> {selectedCoffee.rating}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-stone-300 leading-relaxed">
-                    {selectedCoffee.description}
-                  </p>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-bold text-stone-400">Select Grind Preference</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {['Whole Bean', 'Espresso', 'Drip / Pour Over', 'French Press'].map((grind) => (
-                        <button
-                          key={grind}
-                          onClick={() => setGrindPreference(grind)}
-                          className={`p-2 rounded-xl text-xs font-semibold border transition-all ${grindPreference === grind ? 'bg-amber-600/20 border-amber-600 text-amber-400' : 'bg-stone-900 border-stone-800 text-stone-300'}`}
-                        >
-                          {grind}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-stone-800 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-stone-500 uppercase block">Price</span>
-                    <span className="text-2xl font-black text-white">${selectedCoffee.price.toFixed(2)}</span>
-                  </div>
-
-                  <button 
-                    onClick={() => {
-                      addToCart(selectedCoffee, grindPreference);
-                      setSelectedCoffee(null);
-                    }}
-                    className="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg shadow-amber-900/40 transition-all flex items-center gap-2"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Cart</span>
-                  </button>
-                </div>
-              </div>
+            <div className="text-center space-y-2">
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-500 text-xs font-bold border border-amber-500/40">
+                Migre Roastery Box
+              </span>
+              <h2 className="text-2xl font-black">Choose Your Subscription Plan</h2>
+              <p className={`text-xs ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>Fresh single-origin coffees delivered to your doorstep every month. Cancel or pause anytime.</p>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { id: 'explorer', name: 'Explorer', bags: '1 Bag / mo', price: '$19' },
+                { id: 'connoisseur', name: 'Connoisseur', bags: '2 Bags / mo', price: '$35' },
+                { id: 'roaster', name: 'Master Roaster', bags: '4 Bags / mo', price: '$65' }
+              ].map((plan) => (
+                <div 
+                  key={plan.id}
+                  onClick={() => setSelectedPlan(plan.id as any)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${selectedPlan === plan.id ? 'bg-amber-500/10 border-amber-500 text-amber-500' : isDarkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700' : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:border-zinc-300'}`}
+                >
+                  <div>
+                    <h4 className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>{plan.name}</h4>
+                    <span className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`}>{plan.bags}</span>
+                  </div>
+                  <div className="mt-4">
+                    <span className={`text-xl font-black ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>{plan.price}</span>
+                    <span className={`text-[10px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`}> /mo</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => {
+                setCheckoutSuccess(true);
+                setTimeout(() => {
+                  setCheckoutSuccess(false);
+                  setShowSubscriptionModal(false);
+                }, 2000);
+              }}
+              className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2"
+            >
+              {checkoutSuccess ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>Subscription Confirmed! Roasting Fresh...</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Confirm Subscription</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}
 
-      {/* Shopping Cart Drawer */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-end animate-fadeIn">
-          <div className="w-full max-w-md bg-[#12100e] h-full border-l border-stone-800 p-6 sm:p-8 flex flex-col justify-between shadow-2xl">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-stone-800 pb-4">
-                <div className="flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5 text-amber-500" />
-                  <h3 className="font-bold text-lg text-white">Your Coffee Bag ({cart.reduce((s, i) => s + i.quantity, 0)})</h3>
+      {/* Detail / More Info Modal */}
+      {selectedCoffee && !isBrewing && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className={`border rounded-xl max-w-2xl w-full overflow-hidden shadow-2xl animate-fadeIn relative ${isDarkMode ? 'bg-[#181818] border-zinc-800 text-white' : 'bg-white border-zinc-200 text-zinc-900'}`}>
+            <button 
+              onClick={() => setSelectedCoffee(null)}
+              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center backdrop-blur-md transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="relative aspect-video w-full">
+              <img src={selectedCoffee.backdrop} alt={selectedCoffee.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40"></div>
+              
+              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-white">{selectedCoffee.title}</h2>
+                  <div className="flex items-center gap-3 text-xs text-zinc-300 mt-1">
+                    <span className="text-amber-400 font-bold">{selectedCoffee.matchScore}% Match</span>
+                    <span className="text-amber-300 font-mono">{selectedCoffee.originOrDuration}</span>
+                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">{selectedCoffee.roastLevel} Roast</span>
+                  </div>
                 </div>
+
                 <button 
-                  onClick={() => setIsCartOpen(false)}
-                  className="w-8 h-8 rounded-full bg-stone-900 text-stone-300 flex items-center justify-center hover:bg-stone-800"
+                  onClick={() => setIsBrewing(true)}
+                  className="flex items-center gap-2 px-6 py-3 rounded-md bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm shadow-xl transition-all"
                 >
-                  <X className="w-4 h-4" />
+                  <Play className="w-5 h-5 fill-current" />
+                  <span>Brew Guide</span>
                 </button>
               </div>
-
-              {cart.length === 0 ? (
-                <div className="text-center py-20 space-y-4">
-                  <Coffee className="w-12 h-12 text-stone-700 mx-auto" />
-                  <p className="text-sm text-stone-400">Your cart is currently empty.</p>
-                  <button 
-                    onClick={() => setIsCartOpen(false)}
-                    className="px-6 py-2.5 rounded-xl bg-amber-600 text-white font-bold text-xs"
-                  >
-                    Explore Roasts
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
-                  {cart.map((item, index) => (
-                    <div key={index} className="bg-stone-900/80 border border-stone-800 rounded-2xl p-4 flex gap-4 items-center">
-                      <img src={item.coffee.image} alt={item.coffee.name} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm text-white truncate">{item.coffee.name}</h4>
-                        <span className="text-[10px] text-amber-500 font-medium block">Grind: {item.grind}</span>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs font-black text-white">${(item.coffee.price * item.quantity).toFixed(2)}</span>
-                          <div className="flex items-center gap-2 bg-stone-950 rounded-lg px-2 py-1 border border-stone-800">
-                            <button onClick={() => updateQuantity(index, -1)} className="text-stone-400 hover:text-white">
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="text-xs font-bold text-white px-1">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(index, 1)} className="text-stone-400 hover:text-white">
-                              <Plus className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
-            {cart.length > 0 && (
-              <div className="space-y-4 pt-6 border-t border-stone-800">
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between text-stone-400">
-                    <span>Subtotal</span>
-                    <span className="font-semibold text-white">${totalCartPrice.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-stone-400">
-                    <span>Artisan Shipping</span>
-                    <span className="font-semibold text-emerald-400">{totalCartPrice > 45 ? "FREE" : "$4.99"}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-stone-800/80">
-                    <span>Total</span>
-                    <span className="text-amber-400">${(totalCartPrice > 45 ? totalCartPrice : totalCartPrice + 4.99).toFixed(2)}</span>
-                  </div>
-                </div>
+            <div className="p-6 space-y-4">
+              <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                {selectedCoffee.description}
+              </p>
 
-                <button
-                  onClick={() => {
-                    setCheckoutSuccess(true);
-                    setTimeout(() => {
-                      setCart([]);
-                      setCheckoutSuccess(false);
-                      setIsCartOpen(false);
-                    }, 2000);
-                  }}
-                  className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold text-xs shadow-lg shadow-amber-900/40 transition-all flex items-center justify-center gap-2"
-                >
-                  {checkoutSuccess ? (
-                    <>
-                      <Check className="w-4 h-4 text-white" />
-                      <span>Order Placed! Roasting Soon...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Proceed to Checkout</span>
-                    </>
-                  )}
-                </button>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-amber-500 mb-2">Tasting Notes & Profile</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedCoffee.flavorNotes.map((note, idx) => (
+                    <span key={idx} className={`px-3 py-1 rounded-md text-xs font-medium border ${isDarkMode ? 'bg-zinc-900 text-amber-300 border-zinc-800' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
+                      ✨ {note}
+                    </span>
+                  ))}
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}

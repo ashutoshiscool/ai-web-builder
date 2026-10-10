@@ -361,6 +361,57 @@ export async function GET(
           innerSvg = [
             React.createElement('path', { key: 'sp1', d: 'm12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z' })
           ];
+        } else if (lower.includes('navigation') || lower.includes('compass')) {
+          innerSvg = React.createElement('polygon', { key: 'nav', points: '3 11 22 2 13 21 11 13 3 11' });
+        } else if (lower.includes('car')) {
+          innerSvg = [
+            React.createElement('path', { key: 'c1', d: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11.1 2 11.5 2 12v4c0 .6.4 1 1 1h2' }),
+            React.createElement('circle', { key: 'c2', cx: 7, cy: 17, r: 2 }),
+            React.createElement('circle', { key: 'c3', cx: 17, cy: 17, r: 2 })
+          ];
+        } else if (lower.includes('mappin') || lower.includes('map')) {
+          innerSvg = [
+            React.createElement('path', { key: 'mp1', d: 'M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z' }),
+            React.createElement('circle', { key: 'mp2', cx: 12, cy: 10, r: 3 })
+          ];
+        } else if (lower.includes('phone')) {
+          innerSvg = React.createElement('path', { key: 'ph', d: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z' });
+        } else if (lower.includes('mail')) {
+          innerSvg = [
+            React.createElement('rect', { key: 'm1', width: 20, height: 16, x: 2, y: 4, rx: 2 }),
+            React.createElement('path', { key: 'm2', d: 'm22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7' })
+          ];
+        } else if (lower.includes('creditcard')) {
+          innerSvg = [
+            React.createElement('rect', { key: 'cc1', width: 20, height: 14, x: 2, y: 5, rx: 2 }),
+            React.createElement('line', { key: 'cc2', x1: 2, x2: 22, y1: 10, y2: 10 })
+          ];
+        } else if (lower.includes('user')) {
+          innerSvg = [
+            React.createElement('path', { key: 'u1', d: 'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' }),
+            React.createElement('circle', { key: 'u2', cx: 12, cy: 7, r: 4 })
+          ];
+        } else if (lower.includes('calendar')) {
+          innerSvg = [
+            React.createElement('rect', { key: 'cal1', width: 18, height: 18, x: 3, y: 4, rx: 2 }),
+            React.createElement('line', { key: 'cal2', x1: 16, x2: 16, y1: 2, y2: 6 }),
+            React.createElement('line', { key: 'cal3', x1: 8, x2: 8, y1: 2, y2: 6 }),
+            React.createElement('line', { key: 'cal4', x1: 3, x2: 21, y1: 10, y2: 10 })
+          ];
+        } else if (lower.includes('dollar')) {
+          innerSvg = [
+            React.createElement('line', { key: 'd1', x1: 12, x2: 12, y1: 2, y2: 22 }),
+            React.createElement('path', { key: 'd2', d: 'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' })
+          ];
+        } else if (lower.includes('zap')) {
+          innerSvg = React.createElement('polygon', { key: 'z', points: '13 2 3 14 12 14 11 22 21 10 12 10 13 2' });
+        } else if (lower.includes('moon')) {
+          innerSvg = React.createElement('path', { key: 'mn', d: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' });
+        } else if (lower.includes('sun')) {
+          innerSvg = [
+            React.createElement('circle', { key: 's1', cx: 12, cy: 12, r: 4 }),
+            React.createElement('path', { key: 's2', d: 'M12 2v2 M12 20v2 M4.93 4.93l1.41 1.41 M17.66 17.66l1.41 1.41 M2 12h2 M20 12h2 M6.34 17.66l-1.41 1.41 M19.07 4.93l-1.41 1.41' })
+          ];
         }
 
         return React.createElement('svg', {
@@ -395,11 +446,20 @@ export async function GET(
       'ShieldCheck', 'Shield', 'TrendingUp', 'Activity', 'Zap', 'BarChart3', 'Code2', 'Terminal', 'Bot',
       'Send', 'RefreshCw', 'Trash2', 'Sliders', 'SlidersHorizontal', 'ShoppingBag', 'Star', 'Heart', 'Coffee',
       'Award', 'Menu', 'Github', 'Twitter', 'Linkedin', 'ExternalLink', 'Briefcase', 'Mail', 'MoreHorizontal',
-      'Clock', 'AlertCircle', 'AlertTriangle', 'Cpu', 'Layers', 'Folder', 'FileCode', 'Eye', 'DollarSign'
+      'Clock', 'AlertCircle', 'AlertTriangle', 'Cpu', 'Layers', 'Folder', 'FileCode', 'Eye', 'DollarSign',
+      'Navigation', 'Car', 'MapPin', 'Compass', 'Phone', 'Calendar', 'Sun', 'Moon', 'Headphones'
     ];
 
     COMMON_ICONS.forEach(name => {
-      window[name] = window.lucideIcons[name];
+      try {
+        Object.defineProperty(window, name, {
+          value: window.lucideIcons[name],
+          configurable: true,
+          writable: true
+        });
+      } catch (e) {
+        try { window[name] = window.lucideIcons[name]; } catch (e2) {}
+      }
     });
   </script>
 
@@ -428,18 +488,66 @@ export async function GET(
 
     function cleanAndTransformCode(code, filename) {
       let cleaned = code;
+      const localDeclarations = [];
       
-      // Dynamic lucide-react icon resolver
+      // Dynamic lucide-react icon resolver & local lexical scoping
       const importRegex = /import\\s*\\{([^}]+)\\}\\s*from\\s*['"]lucide-react['"];?/g;
       let match;
       while ((match = importRegex.exec(cleaned)) !== null) {
-        const names = match[1].split(',').map(s => s.trim().split(/\\s+as\\s+/)[0]).filter(Boolean);
-        names.forEach(name => {
-          if (!window[name]) {
-            window[name] = window.lucideIcons[name];
+        const specifiers = match[1].split(',').map(s => s.trim()).filter(Boolean);
+        specifiers.forEach(spec => {
+          let origName = spec;
+          let localName = spec;
+          if (spec.includes(' as ')) {
+            const parts = spec.split(/\\s+as\\s+/);
+            origName = parts[0].trim();
+            localName = parts[1].trim();
+          }
+          localDeclarations.push('var ' + localName + ' = (window.lucideIcons && window.lucideIcons["' + origName + '"]) || createIconComponent("' + origName + '");');
+          try {
+            Object.defineProperty(window, origName, {
+              value: window.lucideIcons[origName],
+              configurable: true,
+              writable: true
+            });
+          } catch(e) {
+            try { window[origName] = window.lucideIcons[origName]; } catch(e2) {}
+          }
+          try {
+            Object.defineProperty(window, localName, {
+              value: window.lucideIcons[origName],
+              configurable: true,
+              writable: true
+            });
+          } catch(e) {
+            try { window[localName] = window.lucideIcons[origName]; } catch(e2) {}
           }
         });
       }
+
+      // React named imports resolver & local lexical scoping
+      const reactNamedRegex = /import\\s*(?:React\\s*,?\\s*)?\\{([^}]+)\\}\\s*from\\s*['"]react['"];?/g;
+      let rMatch;
+      while ((rMatch = reactNamedRegex.exec(cleaned)) !== null) {
+        const specifiers = rMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+        specifiers.forEach(spec => {
+          let origName = spec;
+          let localName = spec;
+          if (spec.includes(' as ')) {
+            const parts = spec.split(/\\s+as\\s+/);
+            origName = parts[0].trim();
+            localName = parts[1].trim();
+          }
+          localDeclarations.push('var ' + localName + ' = (window.React && window.React["' + origName + '"]) !== undefined ? window.React["' + origName + '"] : undefined;');
+        });
+      }
+
+      // Handle wildcard / default lucide-react imports
+      cleaned = cleaned.replace(/import\\s+\\*\\s+as\\s+([a-zA-Z0-9_$]+)\\s+from\\s*['"]lucide-react['"];?/g, 'var $1 = window.lucideIcons;');
+      cleaned = cleaned.replace(/import\\s+([a-zA-Z0-9_$]+)\\s+from\\s*['"]lucide-react['"];?/g, function(m, id) {
+        if (id === 'React') return 'var React = window.React;';
+        return 'var ' + id + ' = window.lucideIcons;';
+      });
 
       // Comprehensive import stripping
       cleaned = cleaned.replace(/import\\s+(?:type\\s+)?[\\s\\S]*?from\\s*['"][^'"]+['"];?/g, '');
@@ -482,7 +590,15 @@ export async function GET(
         .replace(/import\\s*['"][^'"]+['"];?/g, '')
         .replace(/^\\s*import\\b[^\\n;]*;?/gm, '');
 
-      return 'var _jsx = window._jsx; var _jsxs = window._jsxs; var _Fragment = window._Fragment;\\n' + transformed;
+      const preamble = [
+        'var _jsx = window._jsx;',
+        'var _jsxs = window._jsxs;',
+        'var _Fragment = window._Fragment;',
+        'var React = window.React;',
+        'var ReactDOM = window.ReactDOM;'
+      ].concat(localDeclarations).join('\\n') + '\\n';
+
+      return preamble + transformed;
     }
 
     try {
