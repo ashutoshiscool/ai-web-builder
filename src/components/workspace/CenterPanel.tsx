@@ -28,7 +28,7 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
   const [showConsole, setShowConsole] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLogItem[]>([
     { id: "1", level: "info", message: "Vite HMR runtime connected.", timestamp: new Date().toLocaleTimeString() },
-    { id: "2", level: "info", message: "Preview application initialized.", timestamp: new Date().toLocaleTimeString() },
+    { id: "2", level: "info", message: "Preview application initialized (Zero-Port Sandboxed).", timestamp: new Date().toLocaleTimeString() },
   ]);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -73,15 +73,15 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
   const errorCount = consoleLogs.filter((l) => l.level === "error").length;
 
   return (
-    <div className="h-full flex flex-col bg-[#08090d] overflow-hidden relative">
-      {/* Top Preview Bar: Viewport, URL, Controls */}
-      <div className="h-11 bg-[#0d0f17] border-b border-[#1e2436] px-3 flex items-center justify-between z-20 text-xs">
+    <div className="h-full flex flex-col bg-[#1e1e1e] overflow-hidden relative">
+      {/* Top Preview Bar: Viewport, URL, Controls in VS Code Style */}
+      <div className="h-10 bg-[#181818] border-b border-[#2b2b2b] px-3 flex items-center justify-between z-20 text-xs font-mono">
         {/* Viewport Switcher */}
-        <div className="flex items-center gap-1 bg-[#151926] p-0.5 rounded-lg border border-slate-800/80">
+        <div className="flex items-center gap-0.5 bg-[#252526] p-0.5 rounded border border-[#333333]">
           <button
             onClick={() => setViewport("desktop")}
             className={`p-1 rounded transition-colors ${
-              viewport === "desktop" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+              viewport === "desktop" ? "bg-[#007acc] text-white" : "text-slate-400 hover:text-white"
             }`}
             title="Desktop View (100%)"
           >
@@ -90,7 +90,7 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
           <button
             onClick={() => setViewport("tablet")}
             className={`p-1 rounded transition-colors ${
-              viewport === "tablet" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+              viewport === "tablet" ? "bg-[#007acc] text-white" : "text-slate-400 hover:text-white"
             }`}
             title="Tablet View (768px)"
           >
@@ -99,7 +99,7 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
           <button
             onClick={() => setViewport("mobile")}
             className={`p-1 rounded transition-colors ${
-              viewport === "mobile" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+              viewport === "mobile" ? "bg-[#007acc] text-white" : "text-slate-400 hover:text-white"
             }`}
             title="Mobile View (375px)"
           >
@@ -108,7 +108,7 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
         </div>
 
         {/* URL Bar */}
-        <div className="flex-1 max-w-md mx-3 flex items-center bg-[#151926] border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] text-slate-300">
+        <div className="flex-1 max-w-md mx-3 flex items-center bg-[#252526] border border-[#333333] rounded px-2.5 py-0.5 text-[11px] text-slate-300">
           <span className="text-slate-500 font-mono select-none">https://app.preview/</span>
           <input
             type="text"
@@ -116,22 +116,22 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
             onChange={(e) => setCurrentRoute(e.target.value)}
             className="flex-1 bg-transparent px-1 font-mono text-white focus:outline-none"
           />
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-1" title="Live Hot Reload Active" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-1" title="Live Hot Reload Active (Zero-Port)" />
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={handleRefresh}
-            className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-1 rounded hover:bg-[#252526] text-slate-400 hover:text-white transition-colors"
             title="Reload Preview"
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleOpenExternal}
-            className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
-            title="Open in New Tab"
+            className="p-1 rounded hover:bg-[#252526] text-slate-400 hover:text-white transition-colors"
+            title="Open Standalone (Zero-Port Sandbox)"
           >
             <ExternalLink className="w-3.5 h-3.5" />
           </button>
@@ -139,9 +139,9 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
       </div>
 
       {/* Main Preview Container */}
-      <div className="flex-1 bg-[#050608] flex items-center justify-center p-2 overflow-auto relative">
+      <div className="flex-1 bg-[#181818] flex items-center justify-center p-2 overflow-auto relative">
         <div
-          className={`h-full transition-all duration-300 rounded-xl overflow-hidden shadow-2xl border border-slate-800/80 bg-[#08090d] flex flex-col ${
+          className={`h-full transition-all duration-300 rounded overflow-hidden shadow-xl border border-[#2b2b2b] bg-[#1e1e1e] flex flex-col ${
             viewport === "desktop"
               ? "w-full"
               : viewport === "tablet"
@@ -160,17 +160,17 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
         </div>
       </div>
 
-      {/* Bottom Console Drawer Button & Drawer */}
-      <div className="border-t border-[#1e2436] bg-[#0d0f17] z-20">
-        <div className="px-3 py-1.5 flex items-center justify-between text-xs">
+      {/* Bottom Console Drawer Button & Drawer (VS Code Integrated Console Style) */}
+      <div className="border-t border-[#2b2b2b] bg-[#181818] z-20 font-mono">
+        <div className="px-3 py-1 flex items-center justify-between text-xs">
           <button
             onClick={() => setShowConsole(!showConsole)}
-            className="flex items-center gap-2 text-slate-400 hover:text-slate-200 font-mono text-[11px]"
+            className="flex items-center gap-2 text-slate-400 hover:text-slate-200 text-[11px]"
           >
-            <Terminal className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Runtime Diagnostics &amp; Console</span>
+            <Terminal className="w-3 h-3 text-[#007acc]" />
+            <span>DEBUG CONSOLE</span>
             {errorCount > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold border border-rose-500/30">
+              <span className="px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 text-[10px] font-bold border border-rose-500/30">
                 {errorCount} error(s)
               </span>
             )}
@@ -184,7 +184,7 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
                   const lastErr = consoleLogs.filter((l) => l.level === "error").pop();
                   if (lastErr) onAskAgentToFix(lastErr.message);
                 }}
-                className="text-[10px] bg-rose-600 hover:bg-rose-500 text-white font-semibold px-2 py-0.5 rounded shadow flex items-center gap-1 transition-all"
+                className="text-[10px] bg-rose-700 hover:bg-rose-600 text-white font-semibold px-2 py-0.5 rounded shadow flex items-center gap-1 transition-all"
               >
                 <Bug className="w-3 h-3" />
                 <span>Fix with AI</span>
@@ -205,7 +205,7 @@ export function CenterPanel({ project, onAskAgentToFix, refreshTrigger }: Center
 
         {/* Collapsible Console Body */}
         {showConsole && (
-          <div className="h-40 bg-[#08090d] border-t border-slate-800/80 p-2 overflow-y-auto font-mono text-[11px] space-y-1">
+          <div className="h-36 bg-[#141414] border-t border-[#2b2b2b] p-2 overflow-y-auto text-[11px] space-y-1">
             {consoleLogs.length === 0 ? (
               <div className="text-slate-600 text-center py-4">No console messages recorded.</div>
             ) : (

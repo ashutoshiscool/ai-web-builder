@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { 
   Bot, User, Sparkles, Send, Square, Play, RefreshCw, 
   Terminal, CheckCircle2, ChevronRight, ChevronDown, 
   Sliders, Layers, Zap, AlertCircle, Wrench, FileCode, Check,
-  Cpu, ArrowRight
+  Cpu, ArrowRight, Copy, CheckCheck, Code2, ArrowUpRight
 } from "lucide-react";
 import { Project, ChatMessage } from "@/lib/storage/project-store";
 import { AVAILABLE_MODELS } from "@/lib/providers/ai-gateway";
@@ -19,6 +19,180 @@ interface LeftPanelProps {
   currentPlan?: string[];
   streamingText?: string;
   activeToolCalls?: Array<{ id: string; name: string; args: any; status: string; result?: string }>;
+  onApplyCode?: (filename: string, code: string) => void;
+}
+
+// Minimalist VS Code-style Code Block with Line Numbers & 1-Click Copy / Apply
+function CodeBlockViewer({ 
+  code, 
+  language, 
+  filename,
+  isStreaming,
+  onApply,
+}: { 
+  code: string; 
+  language: string; 
+  filename?: string;
+  isStreaming?: boolean;
+  onApply?: (filename: string, code: string) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [applied, setApplied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleApply = () => {
+    if (onApply && filename) {
+      onApply(filename, code);
+      setApplied(true);
+      setTimeout(() => setApplied(false), 2000);
+    }
+  };
+
+  const lines = useMemo(() => code.split("\n"), [code]);
+  const displayFilename = filename || (language.includes("tsx") || language.includes("jsx") ? "src/App.tsx" : language ? `script.${language}` : "code");
+
+  return (
+    <div className="my-2.5 rounded border border-[#2b2b2b] bg-[#141414] overflow-hidden text-xs font-mono shadow-md">
+      {/* VS Code Code Header */}
+      <div className="flex items-center justify-between px-3 py-1.5 bg-[#1f1f1f] border-b border-[#2b2b2b] text-[11px] select-none">
+        <div className="flex items-center gap-2">
+          <FileCode className="w-3.5 h-3.5 text-[#007acc]" />
+          <span className="font-semibold text-slate-200">{displayFilename}</span>
+          {isStreaming ? (
+            <span className="flex items-center gap-1 text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded border border-blue-500/20 font-sans">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+              Streaming
+            </span>
+          ) : (
+            <span className="text-[10px] text-slate-500 uppercase">{language || "text"}</span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1">
+          {onApply && filename && !isStreaming && (
+            <button
+              onClick={handleApply}
+              className="flex items-center gap-1 text-[10px] text-emerald-400 hover:text-white px-2 py-0.5 rounded hover:bg-emerald-950/40 border border-emerald-500/30 transition-colors"
+              title="Apply directly to project file"
+            >
+              {applied ? <Check className="w-3 h-3 text-emerald-300" /> : <ArrowUpRight className="w-3 h-3" />}
+              <span>{applied ? "Applied" : "Apply"}</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded hover:bg-[#2d2d2d] transition-colors"
+            title="Copy code to clipboard"
+          >
+            {copied ? <CheckCheck className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+            <span>{copied ? "Copied" : "Copy"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Code Body with Line Numbers */}
+      <div className="p-2.5 overflow-x-auto text-[11.5px] leading-relaxed text-slate-300 max-h-96 overflow-y-auto flex font-mono bg-[#181818]">
+        {/* Line Numbers */}
+        <div className="pr-3 border-r border-[#2b2b2b] text-[#5c5c5c] select-none text-right font-mono text-[10px] leading-relaxed">
+          {lines.map((_, i) => (
+            <div key={i}>{i + 1}</div>
+          ))}
+        </div>
+
+        {/* Code Content */}
+        <div className="pl-3 flex-1 overflow-x-auto">
+          <pre className="whitespace-pre">{code}</pre>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Robust Markdown Parser that handles BOTH closed AND currently streaming unclosed code blocks
+function MessageContent({ 
+  text, 
+  isStreaming,
+  onApply,
+}: { 
+  text: string; 
+  isStreaming?: boolean;
+  onApply?: (filename: string, code: string) => void;
+}) {
+  const parts: React.ReactNode[] = [];
+  const codeBlockStartRegex = /```([a-zA-Z0-9_\-+]*)(?::([a-zA-Z0-9_.\-\/]+))?\n/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let blockIndex = 0;
+
+  while ((match = codeBlockStartRegex.exec(text)) !== null) {
+    const startIndex = match.index;
+    const lang = match[1] || "";
+    const filename = match[2] || "";
+    const codeStartIndex = startIndex + match[0].length;
+
+    // Preceding text before code block
+    if (startIndex > lastIndex) {
+      const plainText = text.substring(lastIndex, startIndex);
+      parts.push(
+        <div key={`text-${lastIndex}`} className="whitespace-pre-line leading-relaxed text-slate-300">
+          {plainText}
+        </div>
+      );
+    }
+
+    // Find closing triple backtick
+    const closingIndex = text.indexOf("```", codeStartIndex);
+
+    if (closingIndex !== -1) {
+      // Completed closed code block
+      const code = text.substring(codeStartIndex, closingIndex);
+      parts.push(
+        <CodeBlockViewer
+          key={`code-${blockIndex++}`}
+          code={code}
+          language={lang}
+          filename={filename}
+          isStreaming={false}
+          onApply={onApply}
+        />
+      );
+      lastIndex = closingIndex + 3;
+      codeBlockStartRegex.lastIndex = lastIndex;
+    } else {
+      // Unclosed code block (currently streaming in progress!)
+      const code = text.substring(codeStartIndex);
+      parts.push(
+        <CodeBlockViewer
+          key={`code-streaming-${blockIndex++}`}
+          code={code}
+          language={lang}
+          filename={filename}
+          isStreaming={isStreaming || true}
+          onApply={onApply}
+        />
+      );
+      lastIndex = text.length;
+      break;
+    }
+  }
+
+  // Trailing text after last code block
+  if (lastIndex < text.length) {
+    const remaining = text.substring(lastIndex);
+    parts.push(
+      <div key={`text-remaining-${lastIndex}`} className="whitespace-pre-line leading-relaxed text-slate-300">
+        {remaining}
+      </div>
+    );
+  }
+
+  return <div className="space-y-1.5">{parts}</div>;
 }
 
 export function LeftPanel({
@@ -30,6 +204,7 @@ export function LeftPanel({
   currentPlan,
   streamingText,
   activeToolCalls,
+  onApplyCode,
 }: LeftPanelProps) {
   const [prompt, setPrompt] = useState("");
   const [agentMode, setAgentMode] = useState<"architect" | "fast" | "debugger" | "refactor">(
@@ -40,6 +215,7 @@ export function LeftPanel({
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Auto-scroll on conversation or streaming updates
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -60,27 +236,33 @@ export function LeftPanel({
     }
   };
 
-  const categories = ["Google", "Anthropic", "OpenAI", "DeepSeek", "xAI / Grok", "Moonshot / Kimi", "Open Weights"] as const;
+  const categories = [
+    "Google Gemini",
+    "Anthropic Claude",
+    "OpenAI",
+    "DeepSeek",
+    "xAI Grok",
+    "Moonshot Kimi",
+    "Qwen & Open Weights"
+  ] as const;
 
   const suggestions = [
-    "Build a SaaS dashboard with PostgreSQL & Stripe",
     "Add interactive dark mode toggle",
     "Add responsive mobile navigation drawer",
     "Add live search and category filter",
     "Add CSV export and analytics chart",
     "Add authentication modal and JWT state",
-    "Add toast notification feedback system",
     "Add real-time KPI metrics and sparklines",
   ];
 
   return (
-    <div className="h-full flex flex-col bg-[#0b0d14] border-r border-[#1e2436] overflow-hidden">
-      {/* Top Controls: Mode & Model */}
-      <div className="p-3 border-b border-[#1e2436] bg-[#0e111a] space-y-2">
+    <div className="h-full flex flex-col bg-[#1e1e1e] border-r border-[#2b2b2b] overflow-hidden select-text font-sans">
+      {/* Top Controls: VS Code Title Header & Model Selector */}
+      <div className="p-2.5 border-b border-[#2b2b2b] bg-[#181818] space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
-            <Sparkles className="w-4 h-4 text-indigo-400" />
-            <span>AI Coding Agent</span>
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
+            <Sparkles className="w-3.5 h-3.5 text-[#007acc]" />
+            <span className="font-mono text-[11px] tracking-wide text-slate-300">COPILOT CHAT</span>
           </div>
 
           {/* Model Selector with All Flagship Models */}
@@ -88,12 +270,12 @@ export function LeftPanel({
             value={model}
             onChange={(e) => setModel(e.target.value)}
             disabled={isGenerating}
-            className="bg-[#151926] border border-slate-800 text-[11px] rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none focus:border-indigo-500 font-medium max-w-[210px]"
+            className="bg-[#252526] border border-[#3c3c3c] hover:border-slate-500 text-[11px] rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-[#007acc] font-mono max-w-[210px] transition-colors"
           >
             {categories.map((cat) => (
-              <optgroup key={cat} label={cat} className="bg-[#0e111a] text-indigo-400 font-bold">
+              <optgroup key={cat} label={cat} className="bg-[#181818] text-[#007acc] font-bold">
                 {AVAILABLE_MODELS.filter((m) => m.category === cat).map((m) => (
-                  <option key={m.id} value={m.id} className="text-slate-200 bg-[#121624]">
+                  <option key={m.id} value={m.id} className="text-slate-200 bg-[#1e1e1e]">
                     {m.name}
                   </option>
                 ))}
@@ -102,13 +284,13 @@ export function LeftPanel({
           </select>
         </div>
 
-        {/* Mode Selector Tabs */}
-        <div className="grid grid-cols-4 gap-1 bg-[#151926] p-0.5 rounded-lg border border-slate-800/80 text-[10px] font-medium">
+        {/* Mode Selector Tabs (VS Code Segment Control) */}
+        <div className="grid grid-cols-4 gap-1 bg-[#141414] p-0.5 rounded border border-[#2b2b2b] text-[11px] font-mono">
           {[
-            { id: "architect", label: "Architect", desc: "Full Plan & Build" },
-            { id: "fast", label: "Fast Edit", desc: "Targeted Patches" },
-            { id: "debugger", label: "Debugger", desc: "Fix Errors" },
-            { id: "refactor", label: "Refactor", desc: "Clean & Polish" },
+            { id: "architect", label: "Architect" },
+            { id: "fast", label: "Fast Edit" },
+            { id: "debugger", label: "Debug" },
+            { id: "refactor", label: "Refactor" },
           ].map((mode) => (
             <button
               key={mode.id}
@@ -116,7 +298,7 @@ export function LeftPanel({
               disabled={isGenerating}
               className={`py-1 rounded text-center transition-all ${
                 agentMode === mode.id
-                  ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                  ? "bg-[#007acc] text-white font-semibold shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -128,17 +310,17 @@ export function LeftPanel({
 
       {/* Real-time Status Banner (When Generating) */}
       {isGenerating && currentStatus && (
-        <div className="bg-indigo-950/40 border-b border-indigo-500/20 px-3 py-2 flex items-center justify-between text-xs animate-fadeIn">
+        <div className="bg-[#1f2430] border-b border-[#007acc]/40 px-3 py-2 flex items-center justify-between text-xs animate-fade-in">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
-            <span className="font-semibold text-indigo-300 capitalize">{currentStatus.step}:</span>
+            <span className="w-2 h-2 rounded-full bg-[#007acc] animate-ping" />
+            <span className="font-bold text-blue-300 font-mono uppercase text-[10px]">{currentStatus.step}:</span>
             <span className="text-slate-300 text-[11px] truncate max-w-[200px] sm:max-w-xs">
               {currentStatus.message}
             </span>
           </div>
           <button
             onClick={onStopGeneration}
-            className="flex items-center gap-1 text-[10px] bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 px-2 py-0.5 rounded border border-rose-500/30 font-medium"
+            className="flex items-center gap-1 text-[10px] bg-rose-950/60 text-rose-300 hover:bg-rose-900 px-2 py-0.5 rounded border border-rose-500/30 font-medium transition-colors"
           >
             <Square className="w-2.5 h-2.5 fill-rose-300" />
             Stop
@@ -148,15 +330,15 @@ export function LeftPanel({
 
       {/* Plan Stepper (if active) */}
       {currentPlan && currentPlan.length > 0 && (
-        <div className="bg-[#121624] border-b border-slate-800/80 p-3 text-xs space-y-1.5">
+        <div className="bg-[#1b1d23] border-b border-[#2b2b2b] p-3 text-xs space-y-1.5 font-mono">
           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-indigo-400" />
+            <Layers className="w-3.5 h-3.5 text-[#007acc]" />
             <span>Agent Plan Execution</span>
           </div>
           <div className="space-y-1 pt-1">
             {currentPlan.map((step, idx) => (
               <div key={idx} className="flex items-center gap-2 text-[11px] text-slate-300">
-                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#007acc] flex-shrink-0" />
                 <span>{step}</span>
               </div>
             ))}
@@ -169,9 +351,9 @@ export function LeftPanel({
         {project.conversations.map((msg) => (
           <div
             key={msg.id}
-            className={`flex flex-col gap-1.5 ${msg.role === "user" ? "items-end" : "items-start"}`}
+            className={`flex flex-col gap-1.5 ${msg.role === "user" ? "items-end" : "items-start"} animate-fade-in`}
           >
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
               {msg.role === "user" ? (
                 <>
                   <span>You</span>
@@ -179,33 +361,33 @@ export function LeftPanel({
                 </>
               ) : (
                 <>
-                  <Bot className="w-3 h-3 text-indigo-400" />
-                  <span className="font-semibold text-slate-400">NOVAFORGE Agent</span>
+                  <Bot className="w-3 h-3 text-[#007acc]" />
+                  <span className="font-semibold text-slate-300">NOVAFORGE Copilot</span>
                 </>
               )}
             </div>
 
             <div
-              className={`rounded-2xl px-4 py-3 leading-relaxed max-w-[92%] whitespace-pre-line text-xs ${
+              className={`rounded-lg px-3.5 py-2.5 leading-relaxed max-w-[95%] text-xs ${
                 msg.role === "user"
-                  ? "bg-indigo-600 text-white rounded-tr-sm shadow-md shadow-indigo-600/10"
-                  : "bg-[#141824] border border-[#1e2436] text-slate-200 rounded-tl-sm shadow-sm"
+                  ? "bg-[#0e639c] text-white rounded-tr-none shadow-sm"
+                  : "bg-[#252526] border border-[#333333] text-slate-200 rounded-tl-none shadow-sm"
               }`}
             >
-              {msg.content}
+              <MessageContent text={msg.content} onApply={onApplyCode} />
             </div>
 
             {/* Display tool calls if recorded in message */}
             {msg.toolCalls && msg.toolCalls.length > 0 && (
-              <div className="w-full max-w-[92%] bg-[#0e111a] border border-slate-800/80 rounded-xl p-2.5 space-y-1.5 font-mono text-[10px]">
+              <div className="w-full max-w-[95%] bg-[#181818] border border-[#2b2b2b] rounded p-2.5 space-y-1.5 font-mono text-[10px]">
                 <div className="text-slate-400 font-bold flex items-center gap-1">
-                  <Wrench className="w-3 h-3 text-indigo-400" />
+                  <Wrench className="w-3 h-3 text-[#007acc]" />
                   <span>Executed {msg.toolCalls.length} Tool(s):</span>
                 </div>
                 <div className="space-y-1">
                   {msg.toolCalls.map((t, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-slate-300 bg-slate-900/60 px-2 py-1 rounded">
-                      <span className="text-indigo-300">➜ {t.name}</span>
+                    <div key={idx} className="flex items-center justify-between text-slate-300 bg-[#1f1f1f] px-2 py-1 rounded border border-[#2b2b2b]">
+                      <span className="text-blue-300">➜ {t.name}</span>
                       <span className="text-emerald-400 font-semibold">{t.status || "completed"}</span>
                     </div>
                   ))}
@@ -217,31 +399,31 @@ export function LeftPanel({
 
         {/* Live Streaming Content (during generation) */}
         {isGenerating && streamingText && (
-          <div className="flex flex-col gap-1.5 items-start animate-fadeIn">
-            <div className="flex items-center gap-1.5 text-[10px] text-indigo-400">
-              <Bot className="w-3 h-3 text-indigo-400" />
-              <span className="font-semibold">NOVAFORGE Agent (Streaming)</span>
+          <div className="flex flex-col gap-1.5 items-start animate-fade-in">
+            <div className="flex items-center gap-1.5 text-[10px] text-[#007acc] font-mono">
+              <Bot className="w-3 h-3 text-[#007acc]" />
+              <span className="font-semibold">NOVAFORGE Copilot (Generating)</span>
             </div>
-            <div className="rounded-2xl rounded-tl-sm px-4 py-3 leading-relaxed max-w-[92%] bg-[#141824] border border-indigo-500/30 text-slate-200 text-xs whitespace-pre-line shadow-lg">
-              {streamingText}
-              <span className="inline-block w-1.5 h-3.5 bg-indigo-400 animate-pulse ml-1 align-middle" />
+            <div className="rounded-lg rounded-tl-none px-3.5 py-2.5 leading-relaxed max-w-[95%] bg-[#252526] border border-[#007acc]/40 text-slate-200 text-xs shadow-md">
+              <MessageContent text={streamingText} isStreaming={true} onApply={onApplyCode} />
+              <span className="inline-block w-1.5 h-3.5 bg-[#007acc] animate-pulse ml-1 align-middle" />
             </div>
           </div>
         )}
 
         {/* Active Tool Calls (Live) */}
         {isGenerating && activeToolCalls && activeToolCalls.length > 0 && (
-          <div className="bg-[#0e111a] border border-indigo-500/30 rounded-xl p-2.5 space-y-1.5 font-mono text-[10px]">
+          <div className="bg-[#181818] border border-[#007acc]/30 rounded p-2.5 space-y-1.5 font-mono text-[10px]">
             <div className="text-slate-400 font-bold flex items-center justify-between">
               <div className="flex items-center gap-1">
-                <Wrench className="w-3 h-3 text-indigo-400" />
+                <Wrench className="w-3 h-3 text-[#007acc]" />
                 <span>Active Tool Execution:</span>
               </div>
-              <span className="text-indigo-400 animate-pulse">Running</span>
+              <span className="text-blue-400 animate-pulse">Running</span>
             </div>
             {activeToolCalls.map((tc) => (
-              <div key={tc.id} className="bg-slate-900/70 p-1.5 rounded flex items-center justify-between text-slate-300">
-                <span className="text-indigo-300">{tc.name}</span>
+              <div key={tc.id} className="bg-[#1f1f1f] p-1.5 rounded flex items-center justify-between text-slate-300 border border-[#2b2b2b]">
+                <span className="text-blue-300">{tc.name}</span>
                 <span className={tc.status === "completed" ? "text-emerald-400" : "text-amber-400"}>
                   {tc.status}
                 </span>
@@ -253,17 +435,17 @@ export function LeftPanel({
 
       {/* Suggested Prompts (when idle) */}
       {!isGenerating && (
-        <div className="px-3 py-2 border-t border-[#1e2436] bg-[#0d0f17]">
-          <div className="text-[10px] text-slate-500 font-medium mb-1.5 flex items-center justify-between">
-            <span>Quick Feature Enhancements:</span>
-            <span className="text-indigo-400 text-[9px] font-mono">1-Click</span>
+        <div className="px-3 py-2 border-t border-[#2b2b2b] bg-[#181818]">
+          <div className="text-[10px] text-slate-400 font-medium mb-1.5 flex items-center justify-between font-mono">
+            <span>Quick Enhancements:</span>
+            <span className="text-[#007acc] text-[9px]">1-Click Action</span>
           </div>
-          <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+          <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
             {suggestions.map((s, idx) => (
               <button
                 key={idx}
                 onClick={() => setPrompt(s)}
-                className="text-[10px] px-2 py-1 rounded bg-[#151926] hover:bg-indigo-600/20 border border-slate-800 hover:border-indigo-500/40 text-slate-300 hover:text-white transition-all text-left truncate max-w-[200px]"
+                className="text-[10px] px-2 py-0.5 rounded bg-[#252526] hover:bg-[#2d2d2d] border border-[#333333] hover:border-slate-500 text-slate-300 hover:text-white transition-all text-left truncate max-w-[200px]"
                 title={s}
               >
                 + {s}
@@ -273,9 +455,9 @@ export function LeftPanel({
         </div>
       )}
 
-      {/* Prompt Composer */}
-      <form onSubmit={handleSubmit} className="p-3 border-t border-[#1e2436] bg-[#0e111a] space-y-2">
-        <div className="relative bg-[#151926] border border-slate-800 rounded-xl focus-within:border-indigo-500/50 transition-all p-2">
+      {/* Prompt Composer (VS Code Terminal Prompt Style) */}
+      <form onSubmit={handleSubmit} className="p-3 border-t border-[#2b2b2b] bg-[#181818] space-y-2">
+        <div className="relative bg-[#252526] border border-[#333333] rounded focus-within:border-[#007acc] transition-all p-2">
           <textarea
             ref={textareaRef}
             value={prompt}
@@ -284,24 +466,24 @@ export function LeftPanel({
             disabled={isGenerating}
             placeholder={
               isGenerating
-                ? "Agent is building your application..."
-                : "Describe changes or features to build... (Enter to send)"
+                ? "Agent is compiling and streaming code..."
+                : "Ask AI Copilot to build, edit, or refactor components... (Enter to send)"
             }
             rows={3}
-            className="w-full bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none resize-none leading-relaxed"
+            className="w-full bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none resize-none leading-relaxed font-sans"
           />
 
-          <div className="flex items-center justify-between pt-1.5 border-t border-slate-800/60">
-            <span className="text-[10px] text-slate-500">
-              Shift + Enter for new line
+          <div className="flex items-center justify-between pt-1.5 border-t border-[#333333]/60 font-mono text-[10px]">
+            <span className="text-slate-500">
+              Shift + Enter for newline
             </span>
 
             <button
               type="submit"
               disabled={isGenerating || !prompt.trim()}
-              className="p-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-indigo-600/25 transition-all active:scale-95"
+              className="px-3 py-1 rounded bg-[#007acc] hover:bg-[#0062a3] disabled:opacity-40 disabled:hover:bg-[#007acc] text-white text-xs font-semibold flex items-center gap-1.5 shadow transition-all active:scale-95"
             >
-              <span>Build</span>
+              <span>Send</span>
               <Send className="w-3 h-3" />
             </button>
           </div>

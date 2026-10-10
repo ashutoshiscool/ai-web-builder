@@ -13,7 +13,7 @@ import * as diff from "diff";
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full bg-[#0d0f17] flex items-center justify-center text-slate-500 font-mono text-xs">
+    <div className="h-full w-full bg-[#1e1e1e] flex items-center justify-center text-slate-500 font-mono text-xs">
       Loading Monaco Editor...
     </div>
   ),
@@ -50,7 +50,7 @@ export function RightPanel({
   // Terminal interactive state
   const [terminalInput, setTerminalInput] = useState("");
   const [terminalHistory, setTerminalHistory] = useState<Array<{ text: string; type: "input" | "output" | "error" | "info" }>>([
-    { text: "NOVAFORGE Developer Terminal v2.4 (Isolated In-Browser Sandbox)", type: "info" },
+    { text: "NOVAFORGE Developer Terminal (In-Browser Sandbox)", type: "info" },
     { text: "Type 'help' to see available commands (build, test, ls, status, clear).", type: "info" },
     { text: "[vite v5.2.0] ready in 184ms | Live Hot Reload Active on /preview/" + project.id, type: "output" },
   ]);
@@ -88,18 +88,6 @@ export function RightPanel({
   const handleSave = () => {
     onUpdateFile(activeFilePath, editorContent);
     setIsDirty(false);
-  };
-
-  const handleFormat = () => {
-    try {
-      // Basic clean formatting
-      const lines = editorContent.split("\n");
-      const cleaned = lines.map((l) => l.trimEnd()).join("\n");
-      setEditorContent(cleaned);
-      setIsDirty(true);
-    } catch {
-      // ignore
-    }
   };
 
   const handleCopyCode = () => {
@@ -153,7 +141,7 @@ export function RightPanel({
     } else if (cmd === "test") {
       newLogs.push({ text: "✓ 4 test suites passed (11/11 tests) in 1.4s.", type: "output" });
     } else if (cmd === "status") {
-      newLogs.push({ text: `● Preview Sandbox: RUNNING\n● Project ID: ${project.id}\n● Framework: ${project.framework}\n● Active Components: ${Object.keys(project.files).filter(f => f.endsWith('.tsx')).length}`, type: "output" });
+      newLogs.push({ text: `● Preview Sandbox: RUNNING (Zero-Port)\n● Project ID: ${project.id}\n● Framework: ${project.framework}\n● Active Components: ${Object.keys(project.files).filter(f => f.endsWith('.tsx')).length}`, type: "output" });
     } else {
       newLogs.push({ text: `Command '${cmd}' executed. (Type 'help' for built-in commands)`, type: "output" });
     }
@@ -182,16 +170,16 @@ export function RightPanel({
   const diffParts = diff.diffLines(originalVersion, currentContent);
 
   return (
-    <div className="h-full flex flex-col bg-[#0b0d14] border-l border-[#1e2436] overflow-hidden">
-      {/* Top Navigation Tabs */}
-      <div className="h-11 bg-[#0d0f17] border-b border-[#1e2436] px-2 flex items-center justify-between text-xs select-none">
-        <div className="flex items-center gap-1">
+    <div className="h-full flex flex-col bg-[#1e1e1e] border-l border-[#2b2b2b] overflow-hidden font-sans">
+      {/* Top Navigation Tabs in VS Code Styling */}
+      <div className="h-10 bg-[#181818] border-b border-[#2b2b2b] px-2 flex items-center justify-between text-xs select-none font-mono">
+        <div className="flex items-center gap-0.5">
           {[
             { id: "editor", label: "Editor", icon: FileCode },
-            { id: "files", label: "Files", icon: Folder },
+            { id: "files", label: "Explorer", icon: Folder },
             { id: "diff", label: "Diff", icon: GitCompare },
             { id: "terminal", label: "Terminal", icon: TermIcon },
-            { id: "checkpoints", label: "History", icon: History },
+            { id: "checkpoints", label: "Timeline", icon: History },
             { id: "env", label: ".env", icon: Settings2 },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -199,13 +187,13 @@ export function RightPanel({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium transition-all ${
+                className={`px-2 py-1 rounded flex items-center gap-1.5 font-medium transition-all text-[11px] ${
                   activeTab === tab.id
-                    ? "bg-[#161a29] text-white border border-slate-700/60 shadow-sm"
+                    ? "bg-[#252526] text-white border border-[#3c3c3c]"
                     : "text-slate-400 hover:text-slate-200"
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3 h-3 text-[#007acc]" />
                 <span>{tab.label}</span>
               </button>
             );
@@ -216,14 +204,14 @@ export function RightPanel({
           <div className="flex items-center gap-1">
             <button
               onClick={handleCopyCode}
-              className="p-1.5 text-slate-400 hover:text-white rounded hover:bg-slate-800"
+              className="p-1 text-slate-400 hover:text-white rounded hover:bg-[#252526]"
               title="Copy code to clipboard"
             >
               {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
             <button
               onClick={handleDownloadFile}
-              className="p-1.5 text-slate-400 hover:text-white rounded hover:bg-slate-800"
+              className="p-1 text-slate-400 hover:text-white rounded hover:bg-[#252526]"
               title="Download file"
             >
               <Download className="w-3.5 h-3.5" />
@@ -231,7 +219,7 @@ export function RightPanel({
             {isDirty && (
               <button
                 onClick={handleSave}
-                className="flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-[11px] font-semibold shadow-sm transition-all"
+                className="flex items-center gap-1 px-2 py-0.5 bg-[#007acc] hover:bg-[#0062a3] text-white rounded text-[11px] font-semibold shadow-sm transition-all"
               >
                 <Save className="w-3 h-3" />
                 <span>Save</span>
@@ -246,23 +234,26 @@ export function RightPanel({
         {/* TAB 1: MONACO CODE EDITOR */}
         {activeTab === "editor" && (
           <div className="h-full flex flex-col">
-            {/* Open File Tabs Header */}
-            <div className="flex items-center bg-[#0e111a] border-b border-[#1e2436] overflow-x-auto text-[11px] font-mono">
+            {/* Open File Tabs Header (VS Code Tabs) */}
+            <div className="flex items-center bg-[#181818] border-b border-[#2b2b2b] overflow-x-auto text-[11px] font-mono">
               {openFiles.map((file) => (
                 <div
                   key={file}
                   onClick={() => handleSelectFile(file)}
-                  className={`flex items-center gap-2 px-3 py-2 border-r border-[#1e2436] cursor-pointer transition-colors ${
+                  className={`flex items-center gap-2 px-3 py-1.5 border-r border-[#2b2b2b] cursor-pointer transition-colors ${
                     activeFilePath === file
-                      ? "bg-[#0b0d14] text-white border-b-2 border-b-indigo-500 font-semibold"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+                      ? "bg-[#1e1e1e] text-white border-t-2 border-t-[#007acc] font-semibold"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-[#252526]"
                   }`}
                 >
-                  <FileCode className="w-3.5 h-3.5 text-indigo-400" />
+                  <FileCode className="w-3.5 h-3.5 text-[#007acc]" />
                   <span>{file.split("/").pop()}</span>
+                  {activeFilePath === file && isDirty && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-white ml-0.5" title="Unsaved changes" />
+                  )}
                   <span
                     onClick={(e) => handleCloseTab(file, e)}
-                    className="text-slate-500 hover:text-rose-400 px-1 rounded"
+                    className="text-slate-500 hover:text-rose-400 px-1 rounded ml-1"
                   >
                     ×
                   </span>
@@ -297,9 +288,9 @@ export function RightPanel({
           </div>
         )}
 
-        {/* TAB 2: INTERACTIVE FILE TREE */}
+        {/* TAB 2: INTERACTIVE FILE TREE (EXPLORER) */}
         {activeTab === "files" && (
-          <div className="h-full flex flex-col p-3 space-y-3">
+          <div className="h-full flex flex-col p-3 space-y-2 bg-[#252526]">
             <div className="flex items-center justify-between">
               <div className="relative flex-1 mr-2">
                 <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
@@ -308,13 +299,13 @@ export function RightPanel({
                   placeholder="Search project files..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#151926] border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#1e1e1e] border border-[#3c3c3c] rounded pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#007acc] font-mono"
                 />
               </div>
 
               <button
                 onClick={() => setShowNewFileInput(!showNewFileInput)}
-                className="p-1.5 bg-[#151926] border border-slate-800 hover:bg-slate-800 rounded-lg text-slate-300 hover:text-white"
+                className="p-1.5 bg-[#1e1e1e] border border-[#3c3c3c] hover:bg-[#2d2d2d] rounded text-slate-300 hover:text-white"
                 title="Create New File"
               >
                 <Plus className="w-4 h-4" />
@@ -322,7 +313,7 @@ export function RightPanel({
             </div>
 
             {showNewFileInput && (
-              <div className="flex items-center gap-2 p-2 bg-slate-900 rounded-xl border border-indigo-500/50 animate-fadeIn">
+              <div className="flex items-center gap-2 p-2 bg-[#1e1e1e] rounded border border-[#007acc] animate-fade-in">
                 <input
                   type="text"
                   placeholder="e.g. src/components/Header.tsx"
@@ -334,7 +325,7 @@ export function RightPanel({
                 />
                 <button
                   onClick={handleCreateFile}
-                  className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-semibold"
+                  className="px-2.5 py-1 bg-[#007acc] hover:bg-[#0062a3] text-white rounded text-xs font-semibold"
                 >
                   Create
                 </button>
@@ -342,7 +333,7 @@ export function RightPanel({
             )}
 
             {/* File List */}
-            <div className="flex-1 overflow-y-auto space-y-1 font-mono text-xs">
+            <div className="flex-1 overflow-y-auto space-y-0.5 font-mono text-xs">
               {filteredFiles.map((path) => (
                 <div
                   key={path}
@@ -350,14 +341,14 @@ export function RightPanel({
                     handleSelectFile(path);
                     setActiveTab("editor");
                   }}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer group transition-colors ${
+                  className={`flex items-center justify-between px-2.5 py-1.5 rounded cursor-pointer group transition-colors ${
                     activeFilePath === path
-                      ? "bg-indigo-950/40 text-indigo-300 border border-indigo-500/30"
-                      : "text-slate-300 hover:bg-slate-900/60"
+                      ? "bg-[#37373d] text-white"
+                      : "text-slate-300 hover:bg-[#2a2d2e]"
                   }`}
                 >
                   <div className="flex items-center gap-2 truncate">
-                    <FileCode className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                    <FileCode className="w-3.5 h-3.5 text-[#007acc] flex-shrink-0" />
                     <span className="truncate">{path}</span>
                   </div>
 
@@ -366,7 +357,7 @@ export function RightPanel({
                       e.stopPropagation();
                       if (confirm(`Delete '${path}'?`)) onDeleteFile(path);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-500 hover:text-rose-400 transition-opacity"
                     title="Delete File"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -379,11 +370,11 @@ export function RightPanel({
 
         {/* TAB 3: DIFF VIEWER */}
         {activeTab === "diff" && (
-          <div className="h-full flex flex-col p-4 space-y-3 overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div className="h-full flex flex-col p-3 space-y-3 overflow-y-auto bg-[#1e1e1e]">
+            <div className="flex items-center justify-between border-b border-[#2b2b2b] pb-2 font-mono">
               <div>
                 <h4 className="text-xs font-bold text-white">Diff Inspector</h4>
-                <p className="text-[11px] text-slate-400 font-mono">{activeFilePath}</p>
+                <p className="text-[11px] text-slate-400">{activeFilePath}</p>
               </div>
               <div className="flex gap-2">
                 <button
@@ -391,14 +382,14 @@ export function RightPanel({
                     onCreateCheckpoint(`Accepted: ${activeFilePath}`);
                     alert("Changes accepted and committed into new checkpoint!");
                   }}
-                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold"
+                  className="px-2.5 py-1 bg-[#007acc] hover:bg-[#0062a3] text-white rounded text-[11px] font-semibold transition-colors"
                 >
                   Accept Changes
                 </button>
               </div>
             </div>
 
-            <div className="bg-[#08090d] border border-slate-800 rounded-xl p-3 font-mono text-[11px] overflow-x-auto space-y-0.5 leading-relaxed">
+            <div className="bg-[#141414] border border-[#2b2b2b] rounded p-3 font-mono text-[11.5px] overflow-x-auto space-y-0.5 leading-relaxed">
               {diffParts.map((part, index) => {
                 const color = part.added
                   ? "bg-emerald-950/40 text-emerald-300 border-l-2 border-emerald-500 px-1"
@@ -417,15 +408,15 @@ export function RightPanel({
 
         {/* TAB 4: INTERACTIVE TERMINAL */}
         {activeTab === "terminal" && (
-          <div className="h-full flex flex-col bg-[#050608] p-3 font-mono text-xs">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-slate-400 text-[11px]">
+          <div className="h-full flex flex-col bg-[#141414] p-3 font-mono text-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-[#2b2b2b] text-slate-400 text-[11px]">
               <div className="flex items-center gap-2">
-                <TermIcon className="w-3.5 h-3.5 text-indigo-400" />
-                <span>novaforge-shell</span>
+                <TermIcon className="w-3.5 h-3.5 text-[#007acc]" />
+                <span>bash - 80x24</span>
               </div>
               <span className="text-emerald-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Sandbox Running
+                Zero-Port Sandbox Active
               </span>
             </div>
 
@@ -435,7 +426,7 @@ export function RightPanel({
                   key={idx}
                   className={`whitespace-pre-wrap ${
                     item.type === "input"
-                      ? "text-indigo-300 font-bold"
+                      ? "text-blue-300 font-bold"
                       : item.type === "info"
                       ? "text-slate-500"
                       : item.type === "error"
@@ -449,14 +440,14 @@ export function RightPanel({
             </div>
 
             {/* Terminal Command Input */}
-            <form onSubmit={handleTerminalSubmit} className="pt-2 border-t border-slate-800/80 flex items-center gap-2">
-              <span className="text-indigo-400 font-bold">➜</span>
+            <form onSubmit={handleTerminalSubmit} className="pt-2 border-t border-[#2b2b2b] flex items-center gap-2">
+              <span className="text-[#007acc] font-bold">user@novaforge:~$</span>
               <input
                 type="text"
                 value={terminalInput}
                 onChange={(e) => setTerminalInput(e.target.value)}
                 placeholder="type command (help, ls, build, test, clear)..."
-                className="flex-1 bg-transparent text-white focus:outline-none text-[11px]"
+                className="flex-1 bg-transparent text-white focus:outline-none text-[11px] font-mono"
               />
             </form>
           </div>
@@ -464,16 +455,16 @@ export function RightPanel({
 
         {/* TAB 5: CHECKPOINTS / HISTORY */}
         {activeTab === "checkpoints" && (
-          <div className="h-full flex flex-col p-4 space-y-4 overflow-y-auto">
+          <div className="h-full flex flex-col p-4 space-y-4 overflow-y-auto bg-[#1e1e1e]">
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-white">Create Named Snapshot</h4>
+              <h4 className="text-xs font-bold text-white">Create Checkpoint Snapshot</h4>
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="e.g. Before Stripe integration"
                   value={checkpointName}
                   onChange={(e) => setCheckpointName(e.target.value)}
-                  className="flex-1 bg-[#151926] border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 bg-[#252526] border border-[#3c3c3c] rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#007acc] font-mono"
                 />
                 <button
                   onClick={() => {
@@ -482,22 +473,22 @@ export function RightPanel({
                       setCheckpointName("");
                     }
                   }}
-                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm"
+                  className="px-3 py-1.5 bg-[#007acc] hover:bg-[#0062a3] text-white rounded text-xs font-semibold shadow-sm transition-colors"
                 >
                   Save
                 </button>
               </div>
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-slate-800">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider text-[10px]">
-                Checkpoint History ({project.checkpoints.length})
+            <div className="space-y-2 pt-2 border-t border-[#2b2b2b]">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider text-[10px] font-mono">
+                Version Timeline ({project.checkpoints.length})
               </h4>
               <div className="space-y-2">
                 {project.checkpoints.map((cp) => (
                   <div
                     key={cp.id}
-                    className="p-3 bg-slate-900/60 border border-slate-800 rounded-xl space-y-2 text-xs"
+                    className="p-3 bg-[#252526] border border-[#333333] rounded space-y-2 text-xs font-mono"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-white">{cp.name}</span>
@@ -508,10 +499,10 @@ export function RightPanel({
                     <p className="text-[11px] text-slate-400">{cp.description || "Project snapshot"}</p>
                     <button
                       onClick={() => onRestoreCheckpoint(cp.id)}
-                      className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white rounded-lg font-medium transition-all"
+                      className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 bg-[#1e1e1e] hover:bg-[#007acc] text-slate-300 hover:text-white rounded border border-[#3c3c3c] font-medium transition-all"
                     >
                       <RotateCcw className="w-3 h-3" />
-                      <span>Rollback to this state</span>
+                      <span>Rollback to this snapshot</span>
                     </button>
                   </div>
                 ))}
@@ -522,35 +513,35 @@ export function RightPanel({
 
         {/* TAB 6: ENVIRONMENT VARIABLES */}
         {activeTab === "env" && (
-          <div className="h-full flex flex-col p-4 space-y-4 overflow-y-auto">
+          <div className="h-full flex flex-col p-4 space-y-4 overflow-y-auto bg-[#1e1e1e] font-mono">
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-xs font-bold text-white">Project Environment Variables</h4>
-                <p className="text-[11px] text-slate-400">Encrypted server-side, injected into runtime preview</p>
+                <p className="text-[11px] text-slate-400">Encrypted server-side, injected into sandbox preview</p>
               </div>
               <button
                 onClick={() => setShowNewEnv(!showNewEnv)}
-                className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-xs font-bold"
+                className="px-2 py-1 bg-[#252526] hover:bg-[#2d2d2d] border border-[#333333] text-slate-200 hover:text-white rounded text-xs font-medium transition-colors"
               >
                 + Add Variable
               </button>
             </div>
 
             {showNewEnv && (
-              <div className="p-3 bg-slate-900 rounded-xl border border-indigo-500/40 space-y-2 text-xs">
+              <div className="p-3 bg-[#252526] rounded border border-[#007acc] space-y-2 text-xs">
                 <input
                   type="text"
                   placeholder="KEY (e.g. STRIPE_API_KEY)"
                   value={newEnvKey}
                   onChange={(e) => setNewEnvKey(e.target.value)}
-                  className="w-full bg-[#151926] border border-slate-800 rounded px-2 py-1 text-white font-mono"
+                  className="w-full bg-[#1e1e1e] border border-[#3c3c3c] rounded px-2 py-1 text-white font-mono"
                 />
                 <input
                   type="text"
                   placeholder="VALUE"
                   value={newEnvVal}
                   onChange={(e) => setNewEnvVal(e.target.value)}
-                  className="w-full bg-[#151926] border border-slate-800 rounded px-2 py-1 text-white font-mono"
+                  className="w-full bg-[#1e1e1e] border border-[#3c3c3c] rounded px-2 py-1 text-white font-mono"
                 />
                 <button
                   onClick={() => {
@@ -561,18 +552,18 @@ export function RightPanel({
                       setShowNewEnv(false);
                     }
                   }}
-                  className="w-full py-1 bg-indigo-600 text-white rounded font-bold"
+                  className="w-full py-1 bg-[#007acc] hover:bg-[#0062a3] text-white rounded font-medium transition-colors"
                 >
                   Save Variable
                 </button>
               </div>
             )}
 
-            <div className="space-y-2 font-mono text-xs">
+            <div className="space-y-2 text-xs">
               {Object.entries(project.envVars).map(([key, value]) => (
-                <div key={key} className="bg-[#151926] p-2.5 rounded-xl border border-slate-800 space-y-1">
+                <div key={key} className="bg-[#252526] p-2.5 rounded border border-[#333333] space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-indigo-400 font-semibold">{key}</span>
+                    <span className="text-[#007acc] font-semibold">{key}</span>
                     <button
                       onClick={() => {
                         const updated = { ...project.envVars };
@@ -590,7 +581,7 @@ export function RightPanel({
                     onBlur={(e) => {
                       onUpdateEnvVars({ ...project.envVars, [key]: e.target.value });
                     }}
-                    className="w-full bg-[#0b0d14] border border-slate-800 rounded px-2 py-1 text-slate-300 focus:outline-none"
+                    className="w-full bg-[#1e1e1e] border border-[#3c3c3c] rounded px-2 py-1 text-slate-300 focus:outline-none"
                   />
                 </div>
               ))}

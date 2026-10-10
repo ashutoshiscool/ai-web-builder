@@ -476,7 +476,11 @@ IMPORTANT INSTRUCTIONS:
 
     onEvent({
       type: "complete",
-      payload: { summary, tokens: Math.round(fullGeneratedText.length / 4) },
+      payload: { 
+        summary, 
+        fullText: fullGeneratedText,
+        tokens: Math.round(fullGeneratedText.length / 4) 
+      },
     });
 
     return fullGeneratedText;

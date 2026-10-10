@@ -12,7 +12,7 @@ import { GitHubModal } from "@/components/workspace/GitHubModal";
 import { ShareModal } from "@/components/workspace/ShareModal";
 import { Project } from "@/lib/storage/project-store";
 import { useRouter } from "next/navigation";
-import { Bot, Eye, Code2 } from "lucide-react";
+import { Bot, Eye, Code2, Sparkles } from "lucide-react";
 
 export default function WorkspacePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -96,25 +96,30 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
 
+      let fullAccumulatedResponse = "";
+      let assistantMessageCommitted = false;
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n\n");
-        buffer = lines.pop() || "";
+        const blocks = buffer.split(/\r?\n\r?\n/);
+        buffer = blocks.pop() || "";
 
-        for (const line of lines) {
-          const trimmed = line.trim();
+        for (const block of blocks) {
+          const trimmed = block.trim();
           if (!trimmed) continue;
 
-          const eventMatch = trimmed.match(/^event:\s*(\w+)/);
-          const dataMatch = trimmed.match(/data:\s*([\s\S]+)$/);
+          const eventLine = trimmed.split(/\r?\n/).find((l) => l.startsWith("event:"));
+          const eventType = eventLine ? eventLine.replace(/^event:\s*/, "").trim() : "chunk";
+          
+          const dataLines = trimmed.split(/\r?\n/).filter((l) => l.startsWith("data:"));
+          const dataStr = dataLines.map((l) => l.replace(/^data:\s*/, "")).join("\n");
 
-          if (eventMatch && dataMatch) {
-            const eventType = eventMatch[1];
+          if (dataStr) {
             try {
-              const payload = JSON.parse(dataMatch[1]);
+              const payload = JSON.parse(dataStr);
 
               if (eventType === "status") {
                 setCurrentStatus(payload);
@@ -136,8 +141,13 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
                 });
                 setRefreshTrigger((k) => k + 1);
               } else if (eventType === "chunk") {
-                setStreamingText((prev) => prev + payload.text);
+                if (payload.text) {
+                  fullAccumulatedResponse += payload.text;
+                  setStreamingText((prev) => prev + payload.text);
+                }
               } else if (eventType === "complete") {
+                const finalAssistantContent = payload.fullText || fullAccumulatedResponse || payload.summary || "Task finished.";
+                assistantMessageCommitted = true;
                 setProject((prev) => {
                   if (!prev) return null;
                   return {
@@ -147,7 +157,7 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
                       {
                         id: Math.random().toString(),
                         role: "assistant",
-                        content: payload.summary,
+                        content: finalAssistantContent,
                         timestamp: new Date().toISOString(),
                       },
                     ],
@@ -161,6 +171,27 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
             }
           }
         }
+      }
+
+      // If stream ended without an explicit "complete" event, safely commit accumulated code so it NEVER disappears!
+      if (!assistantMessageCommitted && fullAccumulatedResponse.trim()) {
+        const finalContent = fullAccumulatedResponse;
+        assistantMessageCommitted = true;
+        setProject((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            conversations: [
+              ...prev.conversations,
+              {
+                id: Math.random().toString(),
+                role: "assistant",
+                content: finalContent,
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          };
+        });
       }
     } catch (err: any) {
       console.error("Stream error:", err);
@@ -284,9 +315,9 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
       />
 
       {/* Main Workspace Panels */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* DESKTOP RESPONSIVE MULTI-PANEL LAYOUT */}
-        <div className="hidden lg:flex w-full h-full overflow-hidden">
+        <div className="hidden lg:flex w-full flex-1 overflow-hidden">
           {/* Left Panel: AI Agent */}
           {(layoutMode === "three-panel" || layoutMode === "agent-preview") && (
             <div
@@ -303,6 +334,7 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
                 currentPlan={currentPlan}
                 streamingText={streamingText}
                 activeToolCalls={activeToolCalls}
+                onApplyCode={handleUpdateFile}
               />
             </div>
           )}
@@ -346,7 +378,7 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
         </div>
 
         {/* TABLET & MOBILE TABBED INTERFACE */}
-        <div className="lg:hidden w-full h-full flex flex-col">
+        <div className="lg:hidden w-full flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden">
             {mobileTab === "agent" && (
               <LeftPanel
@@ -358,6 +390,7 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
                 currentPlan={currentPlan}
                 streamingText={streamingText}
                 activeToolCalls={activeToolCalls}
+                onApplyCode={handleUpdateFile}
               />
             )}
             {mobileTab === "preview" && (
@@ -381,11 +414,11 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
           </div>
 
           {/* Mobile Bottom Tab Bar */}
-          <div className="h-12 bg-[#0e111a] border-t border-slate-800 flex items-center justify-around text-xs">
+          <div className="h-12 bg-[#181818] border-t border-[#2b2b2b] flex items-center justify-around text-xs">
             <button
               onClick={() => setMobileTab("agent")}
-              className={`flex items-center gap-1.5 py-1 px-3 rounded-lg font-medium ${
-                mobileTab === "agent" ? "text-indigo-400 bg-indigo-500/10 font-bold" : "text-slate-400"
+              className={`flex items-center gap-1.5 py-1 px-3 rounded font-medium ${
+                mobileTab === "agent" ? "text-[#007acc] bg-[#252526] font-bold" : "text-slate-400"
               }`}
             >
               <Bot className="w-4 h-4" />
@@ -393,8 +426,8 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
             </button>
             <button
               onClick={() => setMobileTab("preview")}
-              className={`flex items-center gap-1.5 py-1 px-3 rounded-lg font-medium ${
-                mobileTab === "preview" ? "text-indigo-400 bg-indigo-500/10 font-bold" : "text-slate-400"
+              className={`flex items-center gap-1.5 py-1 px-3 rounded font-medium ${
+                mobileTab === "preview" ? "text-[#007acc] bg-[#252526] font-bold" : "text-slate-400"
               }`}
             >
               <Eye className="w-4 h-4" />
@@ -402,8 +435,8 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
             </button>
             <button
               onClick={() => setMobileTab("code")}
-              className={`flex items-center gap-1.5 py-1 px-3 rounded-lg font-medium ${
-                mobileTab === "code" ? "text-indigo-400 bg-indigo-500/10 font-bold" : "text-slate-400"
+              className={`flex items-center gap-1.5 py-1 px-3 rounded font-medium ${
+                mobileTab === "code" ? "text-[#007acc] bg-[#252526] font-bold" : "text-slate-400"
               }`}
             >
               <Code2 className="w-4 h-4" />
@@ -411,6 +444,47 @@ export default function WorkspacePage({ params }: { params: Promise<{ id: string
             </button>
           </div>
         </div>
+
+        {/* VS Code Bottom Status Bar (Desktop) */}
+        <footer className="hidden lg:flex h-6 bg-[#181818] border-t border-[#2b2b2b] px-3 items-center justify-between text-[11px] font-mono text-[#858585] select-none z-30">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-slate-300 hover:text-white cursor-pointer transition-colors">
+              <svg className="w-3.5 h-3.5 text-[#007acc]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9a9 9 0 01-9 9" />
+              </svg>
+              <span>main*</span>
+            </div>
+
+            <div className="flex items-center gap-1 hover:text-white cursor-pointer transition-colors">
+              <span>⨂ 0</span>
+              <span>⚠ 0</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-slate-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>Zero-Port Sandbox: Ready</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {isGenerating ? (
+              <div className="flex items-center gap-1.5 text-[#007acc] animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#007acc]" />
+                <span>{project.settings.model || "gemini-3.8-flash"} (Compiling)</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 hover:text-white cursor-pointer transition-colors">
+                <Sparkles className="w-3 h-3 text-[#007acc]" />
+                <span>{project.settings.model || "gemini-3.8-flash"}</span>
+              </div>
+            )}
+
+            <span>Ln 1, Col 1</span>
+            <span>Spaces: 2</span>
+            <span>UTF-8</span>
+            <span className="text-slate-300 hover:text-white cursor-pointer transition-colors">TypeScript JSX</span>
+          </div>
+        </footer>
       </div>
 
       {/* Global Modals */}

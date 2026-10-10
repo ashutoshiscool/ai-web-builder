@@ -68,19 +68,19 @@ export function WorkspaceHeader({
   ];
 
   return (
-    <header className="h-13 bg-[#0d0f17] border-b border-[#1e2436] px-4 flex items-center justify-between z-30 select-none">
+    <header className="h-11 bg-[#181818] border-b border-[#2b2b2b] px-3 flex items-center justify-between z-30 select-none font-sans text-xs">
       {/* Left: Brand, Workspace Switcher & Project Switcher */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         <a href="/" className="flex items-center gap-2 group">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 group-hover:scale-105 transition-transform">
-            <Zap className="w-4 h-4 fill-white" />
+          <div className="w-6 h-6 rounded bg-[#007acc] flex items-center justify-center text-white shadow-sm group-hover:bg-[#1085de] transition-colors">
+            <Zap className="w-3.5 h-3.5 fill-white" />
           </div>
-          <span className="font-bold text-sm tracking-tight text-white hidden sm:inline">
+          <span className="font-semibold text-xs tracking-tight text-white hidden sm:inline font-mono">
             NOVAFORGE
           </span>
         </a>
 
-        <div className="h-4 w-[1px] bg-slate-800 hidden sm:block" />
+        <div className="h-3.5 w-[1px] bg-[#2b2b2b] hidden sm:block" />
 
         {/* Workspace Switcher Dropdown */}
         <div className="relative hidden md:block">
@@ -89,17 +89,17 @@ export function WorkspaceHeader({
               setShowWorkspaceDropdown(!showWorkspaceDropdown);
               setShowProjectDropdown(false);
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition-all"
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#252526] border border-[#333333] hover:border-slate-500 text-[11px] text-slate-300 hover:text-white transition-all font-mono"
           >
-            <Users className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="font-medium truncate max-w-[130px]">{activeWorkspace}</span>
+            <Users className="w-3 h-3 text-[#007acc]" />
+            <span className="font-medium truncate max-w-[120px]">{activeWorkspace}</span>
             <ChevronDown className="w-3 h-3 text-slate-500" />
           </button>
 
           {showWorkspaceDropdown && (
-            <div className="absolute left-0 top-9 w-56 bg-[#0e111a] border border-[#1e2436] rounded-xl p-1.5 shadow-2xl z-50 text-xs space-y-1">
+            <div className="absolute left-0 top-8 w-52 bg-[#1f1f1f] border border-[#333333] rounded p-1 shadow-2xl z-50 text-xs space-y-0.5 font-mono">
               <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                Switch Workspace
+                Workspace
               </div>
               {workspaces.map((ws) => (
                 <button
@@ -108,12 +108,12 @@ export function WorkspaceHeader({
                     setActiveWorkspace(ws.name);
                     setShowWorkspaceDropdown(false);
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors ${
-                    activeWorkspace === ws.name ? "bg-indigo-600 text-white font-bold" : "text-slate-300 hover:bg-slate-800"
+                  className={`w-full flex items-center justify-between px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                    activeWorkspace === ws.name ? "bg-[#007acc] text-white font-semibold" : "text-slate-300 hover:bg-[#2d2d2d]"
                   }`}
                 >
                   <span>{ws.name}</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-black/30 opacity-80">{ws.badge}</span>
+                  <span className="text-[10px] px-1 py-0.2 rounded bg-black/40 text-slate-400">{ws.badge}</span>
                 </button>
               ))}
             </div>
@@ -130,7 +130,7 @@ export function WorkspaceHeader({
               onBlur={() => setIsRenaming(false)}
               onKeyDown={(e) => e.key === "Enter" && setIsRenaming(false)}
               autoFocus
-              className="bg-slate-900 border border-indigo-500/50 rounded px-2 py-0.5 text-xs text-white focus:outline-none"
+              className="bg-[#252526] border border-[#007acc] rounded px-2 py-0.5 text-xs text-white focus:outline-none font-mono"
             />
           ) : (
             <div className="flex items-center gap-1">
@@ -139,23 +139,23 @@ export function WorkspaceHeader({
                   setShowProjectDropdown(!showProjectDropdown);
                   setShowWorkspaceDropdown(false);
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-slate-800/60 text-xs font-semibold text-slate-200 transition-colors"
+                className="flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-[#252526] text-xs text-slate-200 transition-colors font-mono"
                 title="Switch project"
               >
-                <FolderKanban className="w-3.5 h-3.5 text-indigo-400" />
-                <span className="truncate max-w-[140px]">{projectName}</span>
+                <FolderKanban className="w-3.5 h-3.5 text-[#007acc]" />
+                <span className="truncate max-w-[130px]">{projectName}</span>
                 <ChevronDown className="w-3 h-3 text-slate-500" />
               </button>
             </div>
           )}
 
           {showProjectDropdown && (
-            <div className="absolute left-0 top-9 w-64 bg-[#0e111a] border border-[#1e2436] rounded-xl p-1.5 shadow-2xl z-50 text-xs space-y-1">
+            <div className="absolute left-0 top-8 w-60 bg-[#1f1f1f] border border-[#333333] rounded p-1 shadow-2xl z-50 text-xs space-y-0.5 font-mono">
               <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-                <span>Recent Projects</span>
-                <span className="text-indigo-400">{allProjects.length}</span>
+                <span>Projects</span>
+                <span className="text-[#007acc]">{allProjects.length}</span>
               </div>
-              <div className="max-h-56 overflow-y-auto space-y-0.5">
+              <div className="max-h-52 overflow-y-auto space-y-0.5">
                 {allProjects.map((p) => (
                   <button
                     key={p.id}
@@ -163,32 +163,32 @@ export function WorkspaceHeader({
                       setShowProjectDropdown(false);
                       router.push(`/workspace/${p.id}`);
                     }}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition-colors ${
-                      p.id === project.id ? "bg-indigo-950/60 text-indigo-300 font-bold border border-indigo-500/30" : "text-slate-300 hover:bg-slate-800"
+                    className={`w-full flex items-center justify-between px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                      p.id === project.id ? "bg-[#007acc] text-white font-semibold" : "text-slate-300 hover:bg-[#2d2d2d]"
                     }`}
                   >
-                    <span className="truncate">{p.name}</span>
-                    {p.id === project.id && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                    <span className="truncate max-w-[170px]">{p.name}</span>
+                    <span className="text-[10px] text-slate-400">{p.framework}</span>
                   </button>
                 ))}
               </div>
-              <div className="pt-1 border-t border-slate-800">
+              <div className="pt-1 border-t border-[#2b2b2b]">
                 <button
                   onClick={() => {
                     setShowProjectDropdown(false);
                     onNewProject();
                   }}
-                  className="w-full py-1.5 px-2 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-center font-bold text-[11px] transition-all"
+                  className="w-full py-1 px-2 bg-[#252526] hover:bg-[#2d2d2d] text-[#007acc] hover:text-white rounded text-center font-medium text-[11px] transition-colors"
                 >
-                  + Create New Project
+                  + New Project
                 </button>
               </div>
             </div>
           )}
 
           {isSaving && (
-            <span className="text-[10px] text-slate-400 flex items-center gap-1">
-              <RefreshCw className="w-3 h-3 animate-spin text-indigo-400" />
+            <span className="text-[10px] text-slate-400 flex items-center gap-1 font-mono">
+              <RefreshCw className="w-3 h-3 animate-spin text-[#007acc]" />
               Saving...
             </span>
           )}
@@ -196,106 +196,106 @@ export function WorkspaceHeader({
       </div>
 
       {/* Center: Layout View Mode Controls */}
-      <div className="hidden lg:flex items-center gap-1 bg-[#151926] p-1 rounded-xl border border-slate-800/80">
+      <div className="hidden lg:flex items-center gap-0.5 bg-[#141414] p-0.5 rounded border border-[#2b2b2b] text-[11px] font-mono">
         <button
           onClick={() => setLayoutMode("three-panel")}
-          className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-            layoutMode === "three-panel" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+          className={`px-2 py-1 rounded flex items-center gap-1.5 transition-all ${
+            layoutMode === "three-panel" ? "bg-[#007acc] text-white font-medium" : "text-slate-400 hover:text-white"
           }`}
           title="3-Panel: Agent + Preview + Editor"
         >
-          <Columns className="w-3.5 h-3.5" />
+          <Columns className="w-3 h-3" />
           <span>Full Studio</span>
         </button>
 
         <button
           onClick={() => setLayoutMode("agent-preview")}
-          className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-            layoutMode === "agent-preview" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+          className={`px-2 py-1 rounded flex items-center gap-1.5 transition-all ${
+            layoutMode === "agent-preview" ? "bg-[#007acc] text-white font-medium" : "text-slate-400 hover:text-white"
           }`}
           title="Agent + Live Preview"
         >
-          <Sparkles className="w-3.5 h-3.5" />
+          <Sparkles className="w-3 h-3" />
           <span>AI + Preview</span>
         </button>
 
         <button
           onClick={() => setLayoutMode("code-preview")}
-          className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-            layoutMode === "code-preview" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+          className={`px-2 py-1 rounded flex items-center gap-1.5 transition-all ${
+            layoutMode === "code-preview" ? "bg-[#007acc] text-white font-medium" : "text-slate-400 hover:text-white"
           }`}
           title="Editor + Live Preview"
         >
-          <Code2 className="w-3.5 h-3.5" />
+          <Code2 className="w-3 h-3" />
           <span>Code + Preview</span>
         </button>
 
         <button
           onClick={() => setLayoutMode("full-preview")}
-          className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-            layoutMode === "full-preview" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+          className={`px-2 py-1 rounded flex items-center gap-1.5 transition-all ${
+            layoutMode === "full-preview" ? "bg-[#007acc] text-white font-medium" : "text-slate-400 hover:text-white"
           }`}
           title="Full Preview Only"
         >
-          <Eye className="w-3.5 h-3.5" />
+          <Eye className="w-3 h-3" />
           <span>Preview</span>
         </button>
       </div>
 
       {/* Right: Actions (New, Share, GitHub, Export, Deploy, Settings) */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 font-mono text-[11px]">
         <button
           onClick={onNewProject}
-          className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium flex items-center gap-1.5 transition-all"
+          className="px-2 py-1 rounded bg-[#252526] border border-[#333333] hover:bg-[#2d2d2d] text-slate-300 hover:text-white flex items-center gap-1 transition-all"
           title="Create New Project"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-3 h-3" />
           <span className="hidden sm:inline">New</span>
         </button>
 
         {/* Share Live Link Button */}
         <button
           onClick={onOpenShare}
-          className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-indigo-950/40 border border-indigo-500/40 hover:bg-indigo-900/60 text-indigo-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all"
+          className="px-2 py-1 rounded bg-[#1e2430] border border-[#007acc]/40 hover:bg-[#263045] text-blue-300 hover:text-white flex items-center gap-1 transition-all"
           title="Share Preview URL & Multi-User Testing (Zero Port Req)"
         >
-          <Share2 className="w-3.5 h-3.5 text-indigo-400" />
-          <span className="hidden sm:inline">Share Live</span>
+          <Share2 className="w-3 h-3 text-[#007acc]" />
+          <span className="hidden sm:inline">Share</span>
         </button>
 
         <button
           onClick={onExportZip}
-          className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium flex items-center gap-1.5 transition-all"
+          className="px-2 py-1 rounded bg-[#252526] border border-[#333333] hover:bg-[#2d2d2d] text-slate-300 hover:text-white flex items-center gap-1 transition-all"
           title="Export Source as ZIP"
         >
-          <Download className="w-3.5 h-3.5 text-indigo-400" />
-          <span className="hidden sm:inline">Export ZIP</span>
+          <Download className="w-3 h-3 text-slate-400" />
+          <span className="hidden sm:inline">ZIP</span>
         </button>
 
         <button
           onClick={onOpenGithub}
-          className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium flex items-center gap-1.5 transition-all"
+          className="px-2 py-1 rounded bg-[#252526] border border-[#333333] hover:bg-[#2d2d2d] text-slate-300 hover:text-white flex items-center gap-1 transition-all"
           title="Sync to GitHub"
         >
-          <GithubIcon className="w-3.5 h-3.5" />
+          <GithubIcon className="w-3 h-3 text-slate-400" />
           <span className="hidden md:inline">GitHub</span>
         </button>
 
         <button
           onClick={onOpenDeploy}
-          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-indigo-600/25 transition-all active:scale-95"
+          className="px-2.5 py-1 rounded bg-[#007acc] hover:bg-[#0062a3] text-white font-medium flex items-center gap-1 shadow-sm transition-all active:scale-95"
           title="Deploy to Cloud (Vercel / Netlify)"
         >
-          <Rocket className="w-3.5 h-3.5" />
+          <Rocket className="w-3 h-3" />
           <span>Deploy</span>
         </button>
 
         <button
           onClick={onOpenSettings}
-          className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
+          className="p-1 rounded bg-[#252526] border border-[#333333] hover:bg-[#2d2d2d] text-slate-400 hover:text-white transition-all"
           title="AI & Provider Settings"
         >
-          <Settings className="w-4 h-4" />
+          <Settings className="w-3.5 h-3.5" />
         </button>
       </div>
     </header>

@@ -1,108 +1,92 @@
 @import "tailwindcss";
 
 :root {
-  --background: #08090d;
-  --foreground: #f1f5f9;
-  --card: #0d0f17;
-  --card-foreground: #f8fafc;
-  --popover: #0d0f17;
-  --popover-foreground: #f8fafc;
-  --primary: #6366f1;
+  --background: #181818;
+  --foreground: #cccccc;
+  --card: #1f1f1f;
+  --card-foreground: #e0e0e0;
+  --popover: #252526;
+  --popover-foreground: #cccccc;
+  --primary: #0078d4;
   --primary-foreground: #ffffff;
-  --secondary: #161a29;
-  --secondary-foreground: #cbd5e1;
-  --muted: #151824;
-  --muted-foreground: #94a3b8;
-  --accent: #20263c;
-  --accent-foreground: #f8fafc;
-  --destructive: #ef4444;
+  --secondary: #2d2d2d;
+  --secondary-foreground: #cccccc;
+  --muted: #252526;
+  --muted-foreground: #858585;
+  --accent: #2a2d2e;
+  --accent-foreground: #ffffff;
+  --destructive: #f14c4c;
   --destructive-foreground: #ffffff;
-  --border: #1e2436;
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --input: #151926;
-  --ring: #6366f1;
+  --border: #2b2b2b;
+  --border-subtle: #333333;
+  --input: #1f1f1f;
+  --ring: #0078d4;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #181818;
+  color: #cccccc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
-  selection-background-color: #6366f1;
-  selection-color: #ffffff;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbars */
+/* VS Code Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
+  background: #3e3e42;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: #4e4e52;
 }
 
-/* Glassmorphism & Panel Utilities */
-.glass-panel {
-  background: rgba(13, 15, 23, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* VS Code Panel Utilities */
+.vscode-panel {
+  background-color: #1e1e1e;
+  border-color: #2b2b2b;
 }
 
-.glass-panel-subtle {
-  background: rgba(20, 24, 38, 0.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.vscode-sidebar {
+  background-color: #252526;
+  border-color: #2b2b2b;
 }
 
-.glow-indigo {
-  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.35);
+.vscode-titlebar {
+  background-color: #181818;
+  border-color: #2b2b2b;
 }
 
-.glow-cyan {
-  box-shadow: 0 0 25px -5px rgba(56, 189, 248, 0.35);
+.vscode-statusbar {
+  background-color: #1f1f1f;
+  border-color: #2b2b2b;
+  color: #9d9d9d;
 }
 
-.glow-purple {
-  box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.35);
+.vscode-badge {
+  background-color: #2d2d2d;
+  border: 1px solid #3c3c3c;
+  color: #cccccc;
 }
 
-/* Grid & Dots backgrounds */
-.bg-grid-subtle {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+/* Smooth Minimalist Transitions */
+.transition-smooth {
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.bg-dots-subtle {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
+@keyframes fadeInFast {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Animations */
-@keyframes pulseSlow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
-.animate-pulse-slow {
-  animation: pulseSlow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes spinSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spinSlow 12s linear infinite;
+.animate-fade-in {
+  animation: fadeInFast 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
